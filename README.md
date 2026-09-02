@@ -1,3 +1,9 @@
+# Touhou 6: Embodiment of Scarlet Devil - Poyo Mod
+This mod adds a third character to the game named Poyo.
+
+This can serve as an example on how to also make your own characters!
+
+# TH06 Portable Decomp README
 [![Discord][discord-badge]][discord] <- click here to join discord server.
 
 [discord]: https://discord.gg/VyGwAjrh9a
