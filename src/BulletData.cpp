@@ -1664,3 +1664,16 @@ extern const CharacterPowerData g_CharacterPowerDataMarisaB[9] = {
     /* Rank8   */ {5, 127, g_CharacterPowerBulletDataMarisaBRank8},
     /* Rank9   */ {7, 999, g_CharacterPowerBulletDataMarisaBRank9},
 };
+
+/* Poyo */
+extern const CharacterPowerData g_CharacterPowerDataPoyo[9] = {
+    /* Rank1   */ {1, 8, g_CharacterPowerBulletDataReimuARank1},
+    /* Rank2   */ {3, 16, g_CharacterPowerBulletDataReimuARank2},
+    /* Rank3   */ {4, 32, g_CharacterPowerBulletDataReimuARank3},
+    /* Rank4   */ {5, 48, g_CharacterPowerBulletDataReimuARank4},
+    /* Rank5   */ {5, 64, g_CharacterPowerBulletDataReimuARank5},
+    /* Rank6   */ {7, 80, g_CharacterPowerBulletDataReimuARank6},
+    /* Rank7   */ {9, 96, g_CharacterPowerBulletDataReimuARank7},
+    /* Rank8   */ {9, 127, g_CharacterPowerBulletDataReimuARank8},
+    /* Rank9   */ {12, 999, g_CharacterPowerBulletDataReimuARank9},
+};

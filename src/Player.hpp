@@ -28,6 +28,7 @@ enum Character
 {
     CHARA_REIMU,
     CHARA_MARISA,
+    CHARA_POYO
 };
 
 enum ShotType
@@ -173,6 +174,7 @@ struct Player
     static FireBulletResult FireBulletReimuB(Player *, PlayerBullet *, u32, u32);
     static FireBulletResult FireBulletMarisaA(Player *, PlayerBullet *, u32, u32);
     static FireBulletResult FireBulletMarisaB(Player *, PlayerBullet *, u32, u32);
+    static FireBulletResult FireBulletPoyo(Player *, PlayerBullet *, u32, u32);
 
     static void StartFireBulletTimer(Player *);
     ZunResult HandlePlayerInputs();

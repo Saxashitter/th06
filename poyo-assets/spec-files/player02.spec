@@ -1,6 +1,6 @@
 entry {
-    path: "data/player02/player02.png",
-    path_2: "data/player02/player02_a.png",
+    path: "data/player02.png",
+    path_2: "data/player02_a.png",
     has_data: false,
     rt_width: 128,
     rt_height: 128,

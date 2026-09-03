@@ -433,7 +433,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             }
             g_Supervisor.cfg.defaultDifficulty = g_GameManager.difficulty;
             vmList = &menu->vm[86];
-            for (i = 0; i < 2; i++, vmList += 2)
+            for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != menu->cursor)
                 {
@@ -449,24 +449,25 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             break;
         if (WAS_PRESSED_PERIODIC(TH_BUTTON_LEFT))
         {
-            menu->cursor = menu->cursor + 1;
-            if (2 <= menu->cursor)
+            i32 lastCursor = menu->cursor;
+            menu->cursor = menu->cursor - 1;
+            if (menu->cursor < 0)
             {
-                menu->cursor = menu->cursor - 2;
+                menu->cursor = menu->cursor + 3;
             }
             if (g_GameManager.difficulty == EXTRA && g_GameManager.HasReachedMaxClears(menu->cursor, 0) == 0 &&
                 g_GameManager.HasReachedMaxClears(menu->cursor, 1) == 0)
             {
-                menu->cursor = menu->cursor - 1;
-                if (menu->cursor < 0)
+                menu->cursor = menu->cursor + 1;
+                if (3 <= menu->cursor)
                 {
-                    menu->cursor = menu->cursor + 2;
+                    menu->cursor = menu->cursor - 3;
                 }
                 goto here;
             }
             g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
             vmList = &menu->vm[86];
-            for (i = 0; i < 2; i++, vmList++)
+            for (i = 0; i < 3; i++, vmList++)
             {
                 if (i == menu->cursor)
                 {
@@ -474,35 +475,41 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                     vmList++;
                     vmList->pendingInterrupt = 9;
                 }
-                else
+                else if (i == lastCursor)
                 {
                     vmList->pendingInterrupt = 12;
                     vmList++;
                     vmList->pendingInterrupt = 12;
                 }
+                else
+                {
+                    vmList++;
+                }
             }
         }
         if (WAS_PRESSED_PERIODIC(TH_BUTTON_RIGHT))
         {
-            menu->cursor = menu->cursor - 1;
-            if (menu->cursor < 0)
+            i32 lastCursor = menu->cursor;
+            menu->cursor = menu->cursor + 1;
+            if (menu->cursor >= 3)
             {
-                menu->cursor = menu->cursor + 2;
+                menu->cursor = menu->cursor - 3;
             }
             if (g_GameManager.difficulty == EXTRA && g_GameManager.HasReachedMaxClears(menu->cursor, 0) == 0 &&
                 g_GameManager.HasReachedMaxClears(menu->cursor, 1) == 0)
             {
-                menu->cursor = menu->cursor + 1;
-                if (2 <= menu->cursor)
+                menu->cursor = menu->cursor - 1;
+                if (menu->cursor < 0)
                 {
-                    menu->cursor = menu->cursor - 2;
+                    menu->cursor = menu->cursor + 3;
                 }
+                
             }
             else
             {
                 g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
                 vmList = &menu->vm[86];
-                for (i = 0; i < 2; i++, vmList++)
+                for (i = 0; i < 3; i++, vmList++)
                 {
                     if (i == menu->cursor)
                     {
@@ -510,11 +517,15 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                         vmList++;
                         vmList->pendingInterrupt = 10;
                     }
-                    else
+                    else if (i == lastCursor)
                     {
                         vmList->pendingInterrupt = 11;
                         vmList++;
                         vmList->pendingInterrupt = 11;
+                    }
+                    else
+                    {
+                        vmList++;
                     }
                 }
             }
@@ -554,7 +565,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             vmList = &menu->vm[g_GameManager.difficulty + 81];
             vmList->pendingInterrupt = 0;
             vmList = &menu->vm[86];
-            for (i = 0; i < 2; i++, vmList += 2)
+            for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != menu->cursor)
                 {
@@ -562,7 +573,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                     vmList[1].pendingInterrupt = 0;
                 }
             }
-            vmList = &menu->vm[92];
+            vmList = &menu->vm[93];
             for (i = 0; i < 2; i++, vmList += 2)
             {
                 if (i != menu->cursor)
@@ -597,12 +608,12 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         {
             menu->cursor = 1 - menu->cursor;
         }
-        vmList = &menu->vm[92];
+        vmList = &menu->vm[93];
         for (i = 0; i < 2; i++, vmList += 2)
         {
             vmList[1].flags.colorOp = AnmVmColorOp_Add;
         }
-        vmList = &menu->vm[92 + g_GameManager.character * 2];
+        vmList = &menu->vm[93 + g_GameManager.character * 2];
         for (i = 0; i < 2; i++, vmList++)
         {
             vmList->flags.colorOp = AnmVmColorOp_Add;
@@ -650,8 +661,8 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             {
                 menu->vm[i].pendingInterrupt = 7;
             }
-            vmList = &menu->vm[92];
-            for (i = 0; i < 2; i++, vmList += 2)
+            vmList = &menu->vm[93];
+            for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != g_GameManager.character)
                 {
@@ -665,7 +676,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             g_GameManager.shotType = menu->cursor;
             menu->cursor = g_GameManager.character;
             vmList = &menu->vm[86];
-            for (i = 0; i < 2; i++, vmList += 2)
+            for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != menu->cursor)
                 {
@@ -747,7 +758,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             vmList = &menu->vm[81 + g_GameManager.difficulty];
             vmList->pendingInterrupt = 0;
             vmList = &menu->vm[86];
-            for (i = 0; i < 2; i++, vmList += 2)
+            for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != g_GameManager.character)
                 {
@@ -755,8 +766,8 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                     vmList[1].pendingInterrupt = 0;
                 }
             }
-            vmList = &menu->vm[92];
-            for (i = 0; i < 2; i++, vmList += 2)
+            vmList = &menu->vm[93];
+            for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != g_GameManager.character)
                 {
@@ -806,7 +817,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             vmList = &menu->vm[81 + g_GameManager.difficulty];
             vmList->pendingInterrupt = 0;
             vmList = &menu->vm[86];
-            for (i = 0; i < 2; i++, vmList += 2)
+            for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != g_GameManager.character)
                 {
@@ -814,8 +825,8 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                     vmList[1].pendingInterrupt = 0;
                 }
             }
-            vmList = &menu->vm[92];
-            for (i = 0; i < 2; i++, vmList += 2)
+            vmList = &menu->vm[93];
+            for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != g_GameManager.character)
                 {
@@ -2013,6 +2024,9 @@ ZunResult MainMenu::LoadTitleAnm(MainMenu *menu)
     i32 i;
 
     g_Supervisor.LoadPbg3(3, TH_TL_DAT_FILE);
+    g_Supervisor.LoadPbg3(5, "poyo.DAT"); // to add our assets
+    
+
     for (i = ANM_FILE_SELECT01; i <= ANM_FILE_REPLAY; i++)
     {
         g_AnmManager->ReleaseAnm(i);
@@ -2104,6 +2118,14 @@ ZunResult MainMenu::LoadDiffCharSelect(MainMenu *menu)
         return ZUN_ERROR;
     }
     if (g_AnmManager->LoadAnm(ANM_FILE_SLPL01B, "data/slpl01b.anm", ANM_OFFSET_SLPL01B) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+    if (g_AnmManager->LoadAnm(ANM_FILE_SLPL02A, "data/slpl02a.anm", ANM_OFFSET_SLPL02A) != ZUN_SUCCESS)
+    {
+        return ZUN_ERROR;
+    }
+    if (g_AnmManager->LoadAnm(ANM_FILE_SLPL02B, "data/slpl02b.anm", ANM_OFFSET_SLPL02B) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }

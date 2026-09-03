@@ -1,6 +1,6 @@
 #pragma once
 
-#define TH_LANG TH_JP
+#define TH_LANG TH_EN
 
 // JP
 #define TH_JP_CONFIG_FILE "東方紅魔郷.cfg"
@@ -193,12 +193,12 @@
 
 #define TH_EN_UNKNOWN_SPELLCARD "??????"
 
-#define TH_EN_CM_DAT_FILE "KOUMAKYO_CM.dat"
-#define TH_EN_ED_DAT_FILE "KOUMAKYO_ED.dat"
-#define TH_EN_IN_DAT_FILE "KOUMAKYO_IN.dat"
-#define TH_EN_MD_DAT_FILE "KOUMAKYO_MD.dat"
-#define TH_EN_ST_DAT_FILE "KOUMAKYO_ST.dat"
-#define TH_EN_TL_DAT_FILE "KOUMAKYO_TL.dat"
+#define TH_EN_CM_DAT_FILE "紅魔郷CM.DAT"
+#define TH_EN_ED_DAT_FILE "紅魔郷ED.DAT"
+#define TH_EN_IN_DAT_FILE "紅魔郷IN.DAT"
+#define TH_EN_MD_DAT_FILE "紅魔郷MD.DAT"
+#define TH_EN_ST_DAT_FILE "紅魔郷ST.DAT"
+#define TH_EN_TL_DAT_FILE "紅魔郷TL.DAT"
 #define TH_CONCAT_HELPER(x, y) x##y
 
 #define TH_MAKE_LANG_STR(lang, id) TH_CONCAT_HELPER(lang, id)
@@ -305,6 +305,7 @@
 #define TH_MD_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _MD_DAT_FILE)
 #define TH_ST_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _ST_DAT_FILE)
 #define TH_TL_DAT_FILE TH_MAKE_LANG_STR(TH_LANG, _TL_DAT_FILE)
+#define TH_POYO_MOD_FILE "poyo.DAT"
 
 // \x81\xF4 is the SJIS encoding for the music note character (♪)
 // This is required because all text input read from data files is SJIS and we need to avoid mixing locales

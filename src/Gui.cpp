@@ -292,6 +292,23 @@ ZunResult Gui::ActualAddedCallback()
                 return ZUN_ERROR;
             }
             break;
+        case CHARA_POYO:
+            if (g_AnmManager->LoadAnm(ANM_FILE_FACE_CHARA_A, "data/face01a.anm", ANM_OFFSET_FACE_CHARA_A) !=
+                ZUN_SUCCESS)
+            {
+                return ZUN_ERROR;
+            }
+            if (g_AnmManager->LoadAnm(ANM_FILE_FACE_CHARA_B, "data/face01b.anm", ANM_OFFSET_FACE_CHARA_B) !=
+                ZUN_SUCCESS)
+            {
+                return ZUN_ERROR;
+            }
+            if (g_AnmManager->LoadAnm(ANM_FILE_FACE_CHARA_C, "data/face01c.anm", ANM_OFFSET_FACE_CHARA_C) !=
+                ZUN_SUCCESS)
+            {
+                return ZUN_ERROR;
+            }
+            break;
         }
     }
     else

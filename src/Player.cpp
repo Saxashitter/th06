@@ -24,11 +24,13 @@
 
 Player g_Player;
 
-static const CharacterData g_CharData[4] = {
+static const CharacterData g_CharData[6] = {
     /* ReimuA  */ {4.0, 2.0, 4.0, 2.0, Player::FireBulletReimuA, Player::FireBulletReimuA},
     /* ReimuB  */ {4.0, 2.0, 4.0, 2.0, Player::FireBulletReimuB, Player::FireBulletReimuB},
     /* MarisaA */ {5.0, 2.5, 5.0, 2.5, Player::FireBulletMarisaA, Player::FireBulletMarisaA},
     /* MarisaB */ {5.0, 2.5, 5.0, 2.5, Player::FireBulletMarisaB, Player::FireBulletMarisaB},
+    /* Poyo    */ {5.0, 2.5, 5.0, 2.5, Player::FireBulletPoyo, Player::FireBulletPoyo},
+    /* Poyo    */ {5.0, 2.5, 5.0, 2.5, Player::FireBulletPoyo, Player::FireBulletPoyo},
 };
 
 Player::Player()
@@ -94,6 +96,14 @@ ZunResult Player::AddedCallback(Player *p)
         }
         g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_PLAYER_IDLE);
         break;
+    case CHARA_POYO:
+        if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT) &&
+            g_AnmManager->LoadAnm(ANM_FILE_PLAYER, "data/player01.anm", ANM_OFFSET_PLAYER) != ZUN_SUCCESS)
+        {
+            return ZUN_ERROR;
+        }
+        g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_PLAYER_IDLE);
+        break;
     }
     p->positionCenter.x = g_GameManager.arcadeRegionSize.x / 2.0f;
     p->positionCenter.y = g_GameManager.arcadeRegionSize.y - 64.0f;
@@ -119,8 +129,11 @@ ZunResult Player::AddedCallback(Player *p)
     p->playerState = PLAYER_STATE_SPAWNING;
     p->invulnerabilityTimer.SetCurrent(120);
     p->orbState = ORB_HIDDEN;
-    g_AnmManager->SetAndExecuteScriptIdx(&p->orbsSprite[0], ANM_SCRIPT_PLAYER_ORB_LEFT);
-    g_AnmManager->SetAndExecuteScriptIdx(&p->orbsSprite[1], ANM_SCRIPT_PLAYER_ORB_RIGHT);
+    if (g_GameManager.character != CHARA_POYO)
+    {
+        g_AnmManager->SetAndExecuteScriptIdx(&p->orbsSprite[0], ANM_SCRIPT_PLAYER_ORB_LEFT);
+        g_AnmManager->SetAndExecuteScriptIdx(&p->orbsSprite[1], ANM_SCRIPT_PLAYER_ORB_RIGHT);
+    }
     for (curBullet = &p->bullets[0], idx = 0; idx < ARRAY_SIZE_SIGNED(p->bullets); idx++, curBullet++)
     {
         curBullet->bulletState = 0;
@@ -325,7 +338,7 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     }
     g_AnmManager->ExecuteScript(&p->playerSprite);
     Player::UpdatePlayerBullets(p);
-    if (p->orbState != ORB_HIDDEN)
+    if (p->orbState != ORB_HIDDEN && g_GameManager.character != CHARA_POYO)
     {
         g_AnmManager->ExecuteScript(&p->orbsSprite[0]);
         g_AnmManager->ExecuteScript(&p->orbsSprite[1]);
@@ -599,7 +612,8 @@ ChainCallbackResult Player::OnDrawHighPrio(Player *p)
     {
         g_AnmManager->DrawNoRotation(&p->playerSprite);
         if (p->orbState != ORB_HIDDEN &&
-            (p->playerState == PLAYER_STATE_ALIVE || p->playerState == PLAYER_STATE_INVULNERABLE))
+            (p->playerState == PLAYER_STATE_ALIVE || p->playerState == PLAYER_STATE_INVULNERABLE)
+            && g_GameManager.character != CHARA_POYO)
         {
             p->orbsSprite[0].pos = p->orbsPosition[0];
             p->orbsSprite[1].pos = p->orbsPosition[1];
@@ -1192,6 +1206,12 @@ FireBulletResult Player::FireBulletMarisaB(Player *player, PlayerBullet *bullet,
                                            u32 framesSinceLastBullet)
 {
     return player->FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataMarisaB);
+}
+
+FireBulletResult Player::FireBulletPoyo(Player *player, PlayerBullet *bullet, u32 bulletIdx,
+                                           u32 framesSinceLastBullet)
+{
+    return player->FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataPoyo);
 }
 
 i32 Player::CheckGraze(const ZunVec3 *center, const ZunVec3 *size) const

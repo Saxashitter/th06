@@ -80,7 +80,7 @@ struct MainMenu
 
     static void ReleaseTitleAnm();
 
-    AnmVm vm[122];
+    AnmVm vm[124];
     i32 cursor;
     i8 padding[0x40];
     u32 unk_81e4;
