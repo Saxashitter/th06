@@ -291,11 +291,21 @@ void EnemyManager::RunEclTimeline()
                 if (g_GameManager.difficulty == EASY && g_GameManager.currentStage == 5 &&
                     this->timelineInstr->arg0 == 1)
                 {
-                    g_Gui.MsgRead(g_GameManager.character * 10 + 3);
+                    u8 character = g_GameManager.character;
+
+                    if (character == CHARA_POYO)
+                        character = CHARA_REIMU;
+
+                    g_Gui.MsgRead(character * 10 + 3);
                 }
                 else
                 {
-                    g_Gui.MsgRead(this->timelineInstr->arg0 + g_GameManager.character * 10);
+                    u8 character = g_GameManager.character;
+
+                    if (character == CHARA_POYO)
+                        character = CHARA_REIMU;
+
+                    g_Gui.MsgRead(this->timelineInstr->arg0 + character * 10);
                 }
                 break;
             case 9:

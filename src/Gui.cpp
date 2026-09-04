@@ -293,17 +293,17 @@ ZunResult Gui::ActualAddedCallback()
             }
             break;
         case CHARA_POYO:
-            if (g_AnmManager->LoadAnm(ANM_FILE_FACE_CHARA_A, "data/face01a.anm", ANM_OFFSET_FACE_CHARA_A) !=
+            if (g_AnmManager->LoadAnm(ANM_FILE_FACE_CHARA_A, "data/face02a.anm", ANM_OFFSET_FACE_CHARA_A) !=
                 ZUN_SUCCESS)
             {
                 return ZUN_ERROR;
             }
-            if (g_AnmManager->LoadAnm(ANM_FILE_FACE_CHARA_B, "data/face01b.anm", ANM_OFFSET_FACE_CHARA_B) !=
+            if (g_AnmManager->LoadAnm(ANM_FILE_FACE_CHARA_B, "data/face02b.anm", ANM_OFFSET_FACE_CHARA_B) !=
                 ZUN_SUCCESS)
             {
                 return ZUN_ERROR;
             }
-            if (g_AnmManager->LoadAnm(ANM_FILE_FACE_CHARA_C, "data/face01c.anm", ANM_OFFSET_FACE_CHARA_C) !=
+            if (g_AnmManager->LoadAnm(ANM_FILE_FACE_CHARA_C, "data/face02c.anm", ANM_OFFSET_FACE_CHARA_C) !=
                 ZUN_SUCCESS)
             {
                 return ZUN_ERROR;
@@ -327,10 +327,29 @@ ZunResult Gui::ActualAddedCallback()
         {
             return ZUN_ERROR;
         }
-        if (this->LoadMsg("data/msg1.dat") != ZUN_SUCCESS)
+        // switch (g_GameManager.character)
+        // {
+        // case CHARA_POYO:
+        if (g_GameManager.character == CHARA_POYO)
         {
-            return ZUN_ERROR;
+            if (this->LoadMsg("data/msg1-poyo.dat") != ZUN_SUCCESS)
+            {
+                return ZUN_ERROR;
+            }
         }
+        else
+        {
+            if (this->LoadMsg("data/msg1.dat") != ZUN_SUCCESS)
+            {
+                return ZUN_ERROR;
+            }
+        }
+        // default:
+        //     if (this->LoadMsg("data/msg1.dat") != ZUN_SUCCESS)
+        //     {
+        //         return ZUN_ERROR;
+        //     }
+        // }
         break;
     case 2:
         if (g_AnmManager->LoadAnm(ANM_FILE_FACE_STAGE_A, "data/face05a.anm", ANM_OFFSET_FACE_STAGE_A) != ZUN_SUCCESS)

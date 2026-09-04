@@ -1,76 +1,139 @@
 entry {
-    path: "data/player02.png",
-    path_2: "data/player02_a.png",
+    path: "data/player00/player00.png",
+    path_2: "data/player00/player00_a.png",
     has_data: false,
-    rt_width: 128,
-    rt_height: 128,
+    rt_width: 256,
+    rt_height: 256,
     rt_format: FORMAT_ARGB_4444,
     sprites: {
-        idle: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        gun: {x: 40.0, y: 49.0, w: 40.0, h: 49.0},
-        swing1: {x: 40.0, y: 0.0, w: 40.0, h: 49.0},
-        swing2: {x: 80.0, y: 0.0, w: 40.0, h: 49.0},
-        swing3: {x: 0.0, y: 49.0, w: 40.0, h: 49.0},
-        bullet: {x: 80.0, y: 49.0, w: 4.0, h: 7.0, id: 64},
-        sprite6: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite7: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite8: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite9: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite10: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite64: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite65: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite66: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite67: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite68: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite128: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite129: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite130: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite131: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        sprite132: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
+        sprite0: {x: 1.0, y: 1.0, w: 31.0, h: 47.0},
+        sprite1: {x: 33.0, y: 1.0, w: 31.0, h: 47.0},
+        sprite2: {x: 65.0, y: 1.0, w: 31.0, h: 47.0},
+        sprite3: {x: 97.0, y: 1.0, w: 31.0, h: 47.0},
+        sprite4: {x: 1.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite5: {x: 33.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite6: {x: 65.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite7: {x: 97.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite8: {x: 129.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite9: {x: 161.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite10: {x: 193.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite11: {x: 1.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite12: {x: 33.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite13: {x: 65.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite14: {x: 97.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite15: {x: 129.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite16: {x: 161.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite17: {x: 193.0, y: 49.0, w: 31.0, h: 47.0},
+        sprite64: {x: 129.0, y: 1.0, w: 14.0, h: 14.0, id: 64},
+        sprite65: {x: 144.0, y: 1.0, w: 14.0, h: 14.0},
+        sprite66: {x: 160.0, y: 0.0, w: 16.0, h: 16.0},
+        sprite67: {x: 176.0, y: 0.0, w: 16.0, h: 16.0},
+        sprite68: {x: 193.0, y: 1.0, w: 14.0, h: 46.0},
+        sprite128: {x: 128.0, y: 16.0, w: 16.0, h: 16.0, id: 128},
+        sprite129: {x: 144.0, y: 16.0, w: 16.0, h: 16.0},
+        sprite130: {x: 128.0, y: 32.0, w: 16.0, h: 16.0},
+        sprite131: {x: 1.0, y: 97.0, w: 62.0, h: 62.0},
+        sprite132: {x: 65.0, y: 97.0, w: 62.0, h: 62.0},
     },
 }
 
-// idle
+
 script 0 script0 {
     loop {
-        ins_1(idle);
+        ins_1(sprite0);
 +8: // 8
+        ins_1(sprite1);
++8: // 16
+        ins_1(sprite2);
++8: // 24
+        ins_1(sprite3);
++8: // 32
     }
 }
 
 
 script 1 script1 {
+    ins_1(sprite4);
++3: // 3
+    ins_1(sprite5);
++3: // 6
+    ins_1(sprite6);
++8: // 14
     loop {
-        ins_1(idle);
-+8: // 8
+        ins_1(sprite7);
++8: // 22
+        ins_1(sprite8);
++8: // 30
+        ins_1(sprite9);
++8: // 38
+        ins_1(sprite10);
++8: // 46
     }
 }
 
 
 script 2 script2 {
+    ins_1(sprite7);
++3: // 3
+    ins_1(sprite6);
++3: // 6
+    ins_1(sprite5);
++3: // 9
+    ins_1(sprite4);
++8: // 17
     loop {
-        ins_1(idle);
+        ins_1(sprite0);
 +8: // 25
-
+        ins_1(sprite1);
++8: // 33
+        ins_1(sprite2);
++8: // 41
+        ins_1(sprite3);
++8: // 49
     }
 }
 
 
 script 3 script3 {
     ins_7();
-
+    ins_1(sprite4);
++3: // 3
+    ins_1(sprite5);
++3: // 6
+    ins_1(sprite6);
++8: // 14
     loop {
-        ins_1(idle);
+        ins_1(sprite7);
 +8: // 22
+        ins_1(sprite8);
++8: // 30
+        ins_1(sprite9);
++8: // 38
+        ins_1(sprite10);
++8: // 46
     }
 }
 
 
 script 4 script4 {
     ins_7();
+    ins_1(sprite7);
++3: // 3
+    ins_1(sprite6);
++3: // 6
+    ins_1(sprite5);
++3: // 9
+    ins_1(sprite4);
++8: // 17
     loop {
-        ins_1(idle);
+        ins_1(sprite0);
 +8: // 25
+        ins_1(sprite1);
++8: // 33
+        ins_1(sprite2);
++8: // 41
+        ins_1(sprite3);
++8: // 49
     }
 }
 

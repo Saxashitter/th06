@@ -98,7 +98,7 @@ ZunResult Player::AddedCallback(Player *p)
         break;
     case CHARA_POYO:
         if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT) &&
-            g_AnmManager->LoadAnm(ANM_FILE_PLAYER, "data/player01.anm", ANM_OFFSET_PLAYER) != ZUN_SUCCESS)
+            g_AnmManager->LoadAnm(ANM_FILE_PLAYER, "data/player02.anm", ANM_OFFSET_PLAYER) != ZUN_SUCCESS)
         {
             return ZUN_ERROR;
         }

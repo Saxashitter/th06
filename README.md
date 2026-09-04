@@ -3,6 +3,8 @@ This mod adds a third character to the game named Poyo.
 
 This can serve as an example on how to also make your own characters!
 
+Once you compile this, drag and drop the poyo.DAT into the same folder as your Touhou game data. Once you launch the custom .exe file, this should work just fine.
+
 # TH06 Portable Decomp README
 [![Discord][discord-badge]][discord] <- click here to join discord server.
 

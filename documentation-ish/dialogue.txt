@@ -1,0 +1,99 @@
+after decompiling stage 1 with thmsg (touhou toolkit)...
+- dialogue appears to be written "vertically backwards". what i mean by this is that the lowest line would appear at top.
+    raw:
+        - use this as an example.
+        - in the dialogue script, this would be on top, when it should be on bottom when being displayed.
+    in script:
+        - in the dialogue script, this would be on top, when it should be on bottom when being displayed.
+        - use this as an example.
+    this however does not mean that the dialogue itself is backwards. it seems that its order is fine when im translating it
+    UPDATE ON THIS: I AM COMPLETELY WRONG IM JUST BEING STUPID.
+- new lines from different characters seem to be done with the @ symbol?
+- entry 0 is reimu, while entry 10 is marisa... this means entry 20 might just be for the character im trying to mod in, which in this case is poyo
+    UPDATE ON THIS: dialogue entries are limited to 16... i had to make an entirely new .dat for poyo
+
+
+^^^^^ INFORMATION HERE IS OLDDDDD except for the update where i had to make poyo's .dat and the entry shenanigans, and the @ symbol thingy
+
+let me break this down more... hmmm...
+    0 = MSG_OPCODE_MSGDELETE
+        no arguments
+        seems to be ran at the end of the dialogue script to close it
+    1 = MSG_OPCODE_PORTRAITANMSCRIPT
+        argument 2: side (0-1)
+        argument 3: portrait set(?)
+
+        might be wrong on this, but it seems to set the current face SPRITESET used for the dialogue portrait
+        -> i say spriteset cause faces are separated into 3 spritesheets. 2 each. for each player character in touhou 6, they have 3.
+
+        UPDATE: shouldve seen this coming. THIS ONE changes the sprite on the spritesheet.
+        UPDATE: no it isnt. setting argument 2 to "1" plays the spellcard animation for whatever reason. my guess is that this is visibility.
+
+    2 = MSG_OPCODE_PORTRAITANMSPRITE
+        argument 2: side (0-1)
+        argument 3: portrait script(?)
+
+        like PORTRAITANMSCRIPT above, but sets the current sprite in the spriteset used... or script, .anm files use different scripts, its hard to explain
+        -> in theory, this means dialogue sprites can be animated... that would be interesting now wouldnt it
+
+        UPDATE: ok so apparently this one sets the portrait across multiple sprites
+            so if i set this to 3 itll move onto face__b
+            interesting
+    3 = MSG_OPCODE_TEXTDIALOGUE
+        argument 2: side (0-1)
+        argument 3: line
+        argument 4: dialogue
+
+        this is the actual fun part. it seems new lines arent handled automatically which is understandable cause this is a game from 20 years ago and i bet pcs wouldnt be able to automatically handle word wrapping
+        thats why argument 3 exists :fire:
+    4 = MSG_OPCODE_WAIT
+        argument 2: frames to wait
+
+        this is how touhou handles waiting to allow the player to read it. in msg1.txt (what im reading to get a understanding of this) its usually put to 300 frames
+    5 = MSG_OPCODE_ANMINTERRUPT
+        argument 2: side (0-1)
+        argument 3: interrupt signal
+
+        runs an interrupt signal on a portrait, making it do animations and such
+        from what i got from reimu's dialogue .spec and the code...
+
+        interrupt[1] = tween into scene (used at start of msg1), for reimu she comes from the left side of the screen
+        interrupt[2] = character is not talking, no fade
+        interrupt[3] = character is talking, fade in
+        interrupt[4] = character is not talking, fade out
+        interrupt[5] = character is not talking, no fade
+    6 = MSG_OPCODE_ECLRESUME
+        this seems to take no argument, but instead if the map has a scene or something planned, this plays it
+        EXAMPLE: rumia swoops in on stage 1 after some dialogue has passed. this value is the reason why
+    7 = MSG_OPCODE_MUSIC
+        argument 2: idk
+
+        this plays the music in the stage
+        very interesting i think
+
+        UPDATE: setting the second argument to 0 makes it so the initial stage music plays
+        this could be very funny LOL
+    8 = MSG_OPCODE_TEXTINTRO
+        argument 2: idk
+        argument 3: line
+        argument 4: dialogue
+
+        the boss intro text apparently
+        second value doesnt seem to do much
+    9 = MSG_OPCODE_STAGERESULTS
+        argument 2: idk
+        opens the stage results
+    10 = MSG_OPCODE_MSGHALT
+        no arguments
+        this seems to close the textbox
+    11 = MSG_OPCODE_STAGEEND
+        no arguments
+        ok im just genuinely confused, we already have stage results so why do we have this
+        does this just save scores? zun fix your 20 year old game
+        UPDATE: this runs after a wait instruction of 1200 frames... so yes it does save scores a
+    12 = MSG_OPCODE_MUSICFADEOUT
+        no arguments
+        fades music out in 4 seconds
+    13 = MSG_OPCODE_WAITSKIPPABLE
+        argument 2: enabled
+        makes the wait period unskippable with shooting or whatever
