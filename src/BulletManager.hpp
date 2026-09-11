@@ -50,6 +50,7 @@ struct Bullet
     i32 dirChangeInterval;
     i32 dirChangeNumTimes;
     i32 dirChangeMaxTimes;
+    i32 isReflected;
     u16 exFlags;
     i16 spriteOffset;
     u16 unk_5bc;

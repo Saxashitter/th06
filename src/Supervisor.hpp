@@ -80,6 +80,7 @@ struct GameConfiguration
 #define ST_PBG3_INDEX 2
 #define CM_PBG3_INDEX 4
 #define ED_PBG3_INDEX 5
+#define POYO_PBG3_INDEX 6
 
 typedef char Pbg3ArchiveName[32];
 
@@ -109,7 +110,7 @@ struct Supervisor
 
     bool ReadMidiFile(u32 midiFileIdx, const char *path);
     ZunResult PlayMidiFile(i32 midiFileIdx);
-    ZunResult PlayAudio(const char *path);
+    ZunResult PlayAudio(const char *path, bool canReplaceWithPoyo = false);
     ZunResult StopAudio();
     ZunResult FadeOutMusic(f32 fadeOutSeconds);
 

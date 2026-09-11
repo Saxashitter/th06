@@ -18,6 +18,7 @@
 #include "i18n.hpp"
 #include "inttypes.hpp"
 #include "utils.hpp"
+#include "Player.hpp"
 
 #include <SDL2/SDL_joystick.h>
 #include <SDL2/SDL_timer.h>
@@ -307,6 +308,7 @@ ZunResult Supervisor::AddedCallback(Supervisor *s)
     {
         return ZUN_ERROR;
     }
+    g_Supervisor.LoadPbg3(POYO_PBG3_INDEX, "poyo.DAT"); // to add our assets
 
     // D3DX code swaps twice to copy to both buffers
 
@@ -805,11 +807,53 @@ ZunResult Supervisor::PlayMidiFile(i32 midiFileIdx)
     return ZUN_ERROR;
 }
 
-ZunResult Supervisor::PlayAudio(const char *path)
+static bool FileExists(const char *path)
+{
+    utils::DebugPrint2(path);
+    SDL_RWops *rw = SDL_RWFromFile(path, "rb");
+    if (rw != nullptr)
+    {
+        SDL_RWclose(rw);
+        utils::DebugPrint2("It's true!");
+        return true;
+    }
+    return false;
+}
+
+ZunResult Supervisor::PlayAudio(const char *path, bool canReplaceWithPoyo)
 {
     char wavName[256];
     char wavPos[256];
+    char th06Str[256];
     char *pathExtension;
+
+    std::strcpy(th06Str, path);
+
+    if (canReplaceWithPoyo && g_GameManager.character == CHARA_POYO)
+    {
+        char thpyStr[256];
+        char thpyWav[256];
+        char *tempExtension;
+
+        std::strcpy(thpyStr, th06Str);
+
+        char *th06Pos = std::strstr(thpyStr, "th06");
+        if (th06Pos != nullptr)
+        {
+            std::memcpy(th06Pos, "thpy", 4);
+
+            std::strcpy(thpyWav, thpyStr);
+            tempExtension = std::strrchr(thpyWav, '.');
+            tempExtension[1] = 'w';
+            tempExtension[2] = 'a';
+            tempExtension[3] = 'v';
+
+            if (FileExists(thpyWav))
+            {
+                std::strcpy(th06Str, thpyStr);
+            }
+        }
+    }
 
     if (g_Supervisor.cfg.musicMode == MIDI)
     {
@@ -822,8 +866,8 @@ ZunResult Supervisor::PlayAudio(const char *path)
     }
     else if (g_Supervisor.cfg.musicMode == WAV)
     {
-        std::strcpy(wavName, path);
-        std::strcpy(wavPos, path);
+        std::strcpy(wavName, th06Str);
+        std::strcpy(wavPos, th06Str);
         pathExtension = std::strrchr(wavName, L'.');
         pathExtension[1] = 'w';
         pathExtension[2] = 'a';

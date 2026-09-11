@@ -102,12 +102,15 @@ ZunResult Player::AddedCallback(Player *p)
         {
             return ZUN_ERROR;
         }
-        g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_PLAYER_IDLE);
+        g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_POYO_IDLE);
         break;
     }
     p->positionCenter.x = g_GameManager.arcadeRegionSize.x / 2.0f;
     p->positionCenter.y = g_GameManager.arcadeRegionSize.y - 64.0f;
     p->positionCenter.z = 0.49;
+    p->reflectionOffset.x = 0;
+    p->reflectionOffset.y = -7;
+    p->reflectionOffset.z = 0;
     p->orbsPosition[0].z = 0.49;
     p->orbsPosition[1].z = 0.49;
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(p->bombRegionSizes); idx++)
@@ -120,6 +123,9 @@ ZunResult Player::AddedCallback(Player *p)
     p->grabItemSize.x = 12.0;
     p->grabItemSize.y = 12.0;
     p->grabItemSize.z = 5.0;
+    p->reflectionSize.x = 20;
+    p->reflectionSize.y = 20;
+    p->reflectionSize.z = 5.0;
     p->playerDirection = MOVEMENT_NONE;
     std::memcpy(&p->characterData, &g_CharData[g_GameManager.CharacterShotType()], sizeof(CharacterData));
     p->characterData.diagonalMovementSpeed = p->characterData.orthogonalMovementSpeed / ZUN_SQRTF(2.0);
@@ -186,16 +192,25 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     else if (!g_Gui.HasCurrentMsgIdx() && p->respawnTimer != 0 && 0 < g_GameManager.bombsRemaining &&
              WAS_PRESSED(TH_BUTTON_BOMB) && p->bombInfo.calc != NULL)
     {
-        g_GameManager.bombsUsed++;
-        g_GameManager.bombsRemaining--;
-        g_Gui.flags.flag1 = 2;
-        p->bombInfo.isInUse = 1;
-        p->bombInfo.timer.SetCurrent(0);
-        p->bombInfo.duration = 999;
-        p->bombInfo.calc(p);
-        g_EnemyManager.spellcardInfo.isCapturing = false;
-        g_GameManager.DecreaseSubrank(200);
-        g_EnemyManager.spellcardInfo.usedBomb = g_EnemyManager.spellcardInfo.isActive != 0;
+        if (g_GameManager.character == CHARA_POYO)
+        {
+            g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_POYO_SWING);
+            p->reflectionTimer.SetCurrent(15);
+            p->reflectionActiveTimer.SetCurrent(15);
+        }
+        else
+        {
+            g_GameManager.bombsUsed++;
+            g_GameManager.bombsRemaining--;
+            g_Gui.flags.flag1 = 2;
+            p->bombInfo.isInUse = 1;
+            p->bombInfo.timer.SetCurrent(0);
+            p->bombInfo.duration = 999;
+            p->bombInfo.calc(p);
+            g_EnemyManager.spellcardInfo.isCapturing = false;
+            g_GameManager.DecreaseSubrank(200);
+            g_EnemyManager.spellcardInfo.usedBomb = g_EnemyManager.spellcardInfo.isActive != 0;
+        }
     }
     if (p->playerState == PLAYER_STATE_DEAD)
     {
@@ -336,6 +351,18 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     {
         p->HandlePlayerInputs();
     }
+    if (p->reflectionTimer.AsFrames() > 0) {
+        p->reflectionTimer.Decrement(1);
+
+        if (p->reflectionTimer.AsFrames() <= 0)
+            p->reflectionTimer.SetCurrent(0);
+    }
+    if (p->reflectionActiveTimer.AsFrames() > 0) {
+        p->reflectionActiveTimer.Decrement(1);
+
+        if (p->reflectionActiveTimer.AsFrames() <= 0)
+            p->reflectionActiveTimer.SetCurrent(0);
+    }
     g_AnmManager->ExecuteScript(&p->playerSprite);
     Player::UpdatePlayerBullets(p);
     if (p->orbState != ORB_HIDDEN && g_GameManager.character != CHARA_POYO)
@@ -475,6 +502,15 @@ i32 Player::CalcDamageToEnemy(const ZunVec3 *enemyPos, const ZunVec3 *enemyHitbo
         {
             *hitWithLazerDuringBomb = true;
         }
+    }
+    if (g_GameManager.character == CHARA_POYO)
+    {
+        // count melee damage too
+        if (this->CalcReflectionCollision(enemyPos, enemyHitboxSize) == 1)
+        {
+            damage += 40;
+        }
+
     }
     return damage;
 }
@@ -790,20 +826,44 @@ ZunResult Player::HandlePlayerInputs()
 
     if (horizontalSpeed < 0.0f && this->previousHorizontalSpeed >= 0.0f)
     {
-        g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_MOVING_LEFT);
+        if (g_GameManager.character == CHARA_POYO)
+            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_POYO_LEFT);
+        else
+            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_MOVING_LEFT);
     }
     else if (!horizontalSpeed && this->previousHorizontalSpeed < 0.0f)
     {
-        g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_STOPPING_LEFT);
+        if (g_GameManager.character == CHARA_POYO)
+        {
+            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_POYO_IDLE);
+        }
+        else
+        {
+            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_STOPPING_LEFT);
+        }
     }
 
     if (horizontalSpeed > 0.0f && this->previousHorizontalSpeed <= 0.0f)
     {
-        g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_MOVING_RIGHT);
+        if (g_GameManager.character == CHARA_POYO)
+        {
+            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_POYO_RIGHT);
+        }
+        else
+        {
+            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_MOVING_RIGHT);
+        }
     }
     else if (!horizontalSpeed && this->previousHorizontalSpeed > 0.0f)
     {
-        g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_STOPPING_RIGHT);
+        if (g_GameManager.character == CHARA_POYO)
+        {
+            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_POYO_IDLE);
+        }
+        else
+        {
+            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_STOPPING_RIGHT);
+        }
     }
 
     this->previousHorizontalSpeed = horizontalSpeed;
@@ -844,6 +904,10 @@ ZunResult Player::HandlePlayerInputs()
     this->grabItemTopLeft = this->positionCenter - this->grabItemSize;
 
     this->grabItemBottomRight = this->positionCenter + this->grabItemSize;
+
+    this->reflectionTopLeft = this->positionCenter + this->reflectionOffset - this->reflectionSize;
+
+    this->reflectionBottomRight = this->positionCenter + this->reflectionOffset + this->reflectionSize;
 
     this->orbsPosition[0] = this->positionCenter;
     this->orbsPosition[1] = this->positionCenter;
@@ -1305,6 +1369,54 @@ i32 Player::CalcKillBoxCollision(const ZunVec3 *bulletCenter, const ZunVec3 *bul
     else
     {
         this->Die();
+        return 1;
+    }
+}
+
+i32 Player::CalcReflectionCollision(const ZunVec3 *bulletCenter, const ZunVec3 *bulletSize)
+{
+    if (g_GameManager.character != CHARA_POYO)
+        return 0;
+
+    if (this->reflectionActiveTimer.AsFrames() <= 0)
+        return 0;
+
+    PlayerRect *curBombProjectile;
+    f32 bulletLeft, bulletTop, bulletRight, bulletBottom;
+    f32 bombProjectileLeft, bombProjectileTop, bombProjectileRight, bombProjectileBottom;
+    i32 curBombIdx;
+    i32 padding1, padding2, padding3, padding4;
+
+    curBombProjectile = this->bombProjectiles;
+    bulletLeft = bulletCenter->x - bulletSize->x / 2.0f;
+    bulletTop = bulletCenter->y - bulletSize->y / 2.0f;
+    bulletRight = bulletCenter->x + bulletSize->x / 2.0f;
+    bulletBottom = bulletCenter->y + bulletSize->y / 2.0f;
+    // for (curBombIdx = 0; curBombIdx < ARRAY_SIZE_SIGNED(this->bombProjectiles); curBombIdx++, curBombProjectile++)
+    // {
+    //     if (curBombProjectile->sizeX == 0.0f)
+    //     {
+    //         continue;
+    //     }
+    //     bombProjectileLeft = curBombProjectile->posX - curBombProjectile->sizeX / 2.0f;
+    //     bombProjectileTop = curBombProjectile->posY - curBombProjectile->sizeY / 2.0f;
+    //     bombProjectileRight = curBombProjectile->posX + curBombProjectile->sizeX / 2.0f;
+    //     bombProjectileBottom = curBombProjectile->posY + curBombProjectile->sizeY / 2.0f;
+    //     if (!(bombProjectileLeft > bulletRight || bombProjectileRight < bulletLeft ||
+    //           bombProjectileTop > bulletBottom || bombProjectileBottom < bulletTop))
+    //     {
+    //         return 2;
+    //     }
+    // }
+
+    if (this->reflectionTopLeft.x > bulletRight || this->reflectionTopLeft.y > bulletBottom ||
+        this->reflectionBottomRight.x < bulletLeft || this->reflectionBottomRight.y < bulletTop)
+    {
+        return 0;
+    }
+    else
+    {
+        // this->Die();
         return 1;
     }
 }

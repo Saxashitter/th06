@@ -2024,7 +2024,6 @@ ZunResult MainMenu::LoadTitleAnm(MainMenu *menu)
     i32 i;
 
     g_Supervisor.LoadPbg3(3, TH_TL_DAT_FILE);
-    g_Supervisor.LoadPbg3(5, "poyo.DAT"); // to add our assets
     
 
     for (i = ANM_FILE_SELECT01; i <= ANM_FILE_REPLAY; i++)

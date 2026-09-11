@@ -43,6 +43,7 @@ enum SoundIdx
     SOUND_1D = 29,
     SOUND_GRAZE = 30,
     SOUND_POWERUP = 31,
+    SOUND_POYO_SHOOT = 32
 };
 
 struct SoundBufferIdxVolume
@@ -87,6 +88,7 @@ struct SoundPlayer
     ZunResult LoadSound(i32 idx, const char *path, f32 volumeMultiplier);
     void PlaySounds();
     void PlaySoundByIdx(SoundIdx idx);
+    bool IsSoundPlaying(SoundIdx idx);
     ZunResult PlayBGM(bool isLooping);
     void StopBGM();
     void FadeOut(f32 seconds);

@@ -27,20 +27,21 @@
 //   The scale is from 0 (no volume modification) to -10,000 (subtraction of 100 decibels, and basically silent).
 //   20 decibels affects wave amplitude by a factor of 10
 
-static const SoundBufferIdxVolume g_SoundBufferIdxVol[32] = {
+static const SoundBufferIdxVolume g_SoundBufferIdxVol[34] = {
     {0, -1500}, {0, -2000}, {1, -1200}, {1, -1400}, {2, -1000},  {3, -500},   {4, -500},   {5, -1700},
     {6, -1700}, {7, -1700}, {8, -1000}, {9, -1000}, {10, -1900}, {11, -1200}, {12, -900},  {5, -1500},
     {13, -900}, {14, -900}, {15, -600}, {16, -400}, {17, -1100}, {18, -900},  {5, -1800},  {6, -1800},
     {7, -1800}, {19, -300}, {20, -600}, {21, -800}, {22, -100},  {23, -500},  {24, -1000}, {25, -1000},
+    {26, -1000}
 };
-static const char *const g_SFXList[26] = {
+static const char *const g_SFXList[27] = {
     "data/wav/plst00.wav", "data/wav/enep00.wav",   "data/wav/pldead00.wav", "data/wav/power0.wav",
     "data/wav/power1.wav", "data/wav/tan00.wav",    "data/wav/tan01.wav",    "data/wav/tan02.wav",
     "data/wav/ok00.wav",   "data/wav/cancel00.wav", "data/wav/select00.wav", "data/wav/gun00.wav",
     "data/wav/cat00.wav",  "data/wav/lazer00.wav",  "data/wav/lazer01.wav",  "data/wav/enep01.wav",
     "data/wav/nep00.wav",  "data/wav/damage00.wav", "data/wav/item00.wav",   "data/wav/kira00.wav",
     "data/wav/kira01.wav", "data/wav/kira02.wav",   "data/wav/extend.wav",   "data/wav/timeout.wav",
-    "data/wav/graze.wav",  "data/wav/powerup.wav",
+    "data/wav/graze.wav",  "data/wav/powerup.wav", "data/wav/post00.wav"
 };
 SoundPlayer g_SoundPlayer;
 
@@ -192,67 +193,78 @@ ZunResult SoundPlayer::LoadWav(const char *path)
 
     if (SDL_RWread(fileStream, idBuf, 4, 1) != 1 || std::strncmp(idBuf, "fmt ", 4) != 0)
     {
+        utils::DebugPrint2("idk this error");
         goto fail;
     }
 
     // Format subchunk size. Guaranteed 16 for PCM data
     if (SDL_ReadLE32(fileStream) != 16)
     {
+        utils::DebugPrint2("not 16 pcm");
         goto fail;
     }
 
     // Audio format. 1 represents raw PCM samples
     if (SDL_ReadLE16(fileStream) != 1)
     {
+        utils::DebugPrint2("not 1 pcm sample");
         goto fail;
     }
 
     // Number of channels. We expect stereo
     if (SDL_ReadLE16(fileStream) != BACKGROUND_MUSIC_WAV_NUM_CHANNELS)
     {
+        utils::DebugPrint2("not stereo");
         goto fail;
     }
 
     // Sample frequency rate
     if (SDL_ReadLE32(fileStream) != BACKGROUND_MUSIC_WAV_SAMPLE_RATE)
     {
+        utils::DebugPrint2("not the right frequency rate");
         goto fail;
     }
 
     // Byte rate
     if (SDL_ReadLE32(fileStream) != BACKGROUND_MUSIC_WAV_BYTE_RATE)
     {
+        utils::DebugPrint2("not the right byte rate");
         goto fail;
     }
 
     // Block alignment
     if (SDL_ReadLE16(fileStream) != BACKGROUND_MUSIC_WAV_BLOCK_ALIGN)
     {
+        utils::DebugPrint2("not the right block alignemtn");
         goto fail;
     }
 
     // Bits per sample
     if (SDL_ReadLE16(fileStream) != BACKGROUND_MUSIC_WAV_BITS_PER_SAMPLE)
     {
+        utils::DebugPrint2("not the right bits per sample");
         goto fail;
     }
 
     if (SDL_RWread(fileStream, idBuf, 4, 1) != 1 || std::strncmp(idBuf, "data", 4) != 0)
     {
+        utils::DebugPrint2("idk this error 2");
         goto fail;
     }
 
     wavDataSize = SDL_ReadLE32(fileStream);
 
-    if (wavDataSize > riffSize - 44)
-    {
-        goto fail;
-    }
+    // if (wavDataSize > riffSize - 44)
+    // {
+    //     utils::DebugPrint2("idk this error 3");
+    //     goto fail;
+    // }
 
     this->backgroundMusic.srcWav.samples = wavDataSize / BACKGROUND_MUSIC_WAV_BLOCK_ALIGN;
 
     if (this->backgroundMusic.srcWav.samples == 0)
     {
+        utils::DebugPrint2("no samples");
         goto fail;
     }
 
@@ -409,6 +421,7 @@ ZunResult SoundPlayer::PlayBGM(bool isLooping)
 
     if (this->backgroundMusic.srcWav.fileStream == NULL)
     {
+        utils::DebugPrint2("file doesnt exist..??");
         return ZUN_ERROR;
     }
 
@@ -491,6 +504,11 @@ void SoundPlayer::PlaySoundByIdx(SoundIdx idx)
     }
 
     this->soundBuffersToPlay[i] = idx;
+}
+
+bool SoundPlayer::IsSoundPlaying(SoundIdx idx)
+{
+    return this->soundBuffers[idx].isPlaying;
 }
 
 void SoundPlayer::MixAudio(u32 samples)

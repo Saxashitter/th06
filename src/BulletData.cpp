@@ -1665,15 +1665,30 @@ extern const CharacterPowerData g_CharacterPowerDataMarisaB[9] = {
     /* Rank9   */ {7, 999, g_CharacterPowerBulletDataMarisaBRank9},
 };
 
+static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank1[1] = {
+    {15, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 150, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET, SOUND_POYO_SHOOT},
+};
+
+static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank2[1] = {
+    {15, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 160, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET, SOUND_POYO_SHOOT},
+};
+
+static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank3[1] = {
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 133, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET, SOUND_POYO_SHOOT},
+};
+
+static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank4[1] = {
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 144, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET, SOUND_POYO_SHOOT},
+};
 /* Poyo */
 extern const CharacterPowerData g_CharacterPowerDataPoyo[9] = {
-    /* Rank1   */ {1, 8, g_CharacterPowerBulletDataReimuARank1},
-    /* Rank2   */ {3, 16, g_CharacterPowerBulletDataReimuARank2},
-    /* Rank3   */ {4, 32, g_CharacterPowerBulletDataReimuARank3},
-    /* Rank4   */ {5, 48, g_CharacterPowerBulletDataReimuARank4},
-    /* Rank5   */ {5, 64, g_CharacterPowerBulletDataReimuARank5},
-    /* Rank6   */ {7, 80, g_CharacterPowerBulletDataReimuARank6},
-    /* Rank7   */ {9, 96, g_CharacterPowerBulletDataReimuARank7},
-    /* Rank8   */ {9, 127, g_CharacterPowerBulletDataReimuARank8},
-    /* Rank9   */ {12, 999, g_CharacterPowerBulletDataReimuARank9},
+    /* Rank1   */ {1, 32, g_CharacterPowerBulletDataPoyoRank1},
+    /* Rank2   */ {1, 32, g_CharacterPowerBulletDataPoyoRank1},
+    /* Rank3   */ {1, 64, g_CharacterPowerBulletDataPoyoRank2},
+    /* Rank4   */ {1, 64, g_CharacterPowerBulletDataPoyoRank2},
+    /* Rank5   */ {1, 96, g_CharacterPowerBulletDataPoyoRank3},
+    /* Rank6   */ {1, 96, g_CharacterPowerBulletDataPoyoRank3},
+    /* Rank7   */ {1, 127, g_CharacterPowerBulletDataPoyoRank4},
+    /* Rank8   */ {1, 127, g_CharacterPowerBulletDataPoyoRank4},
+    /* Rank9   */ {1, 999, g_CharacterPowerBulletDataPoyoRank4}
 };

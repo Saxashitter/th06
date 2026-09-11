@@ -191,6 +191,7 @@ struct Player
     i32 CalcKillBoxCollision(const ZunVec3 *bulletCenter, const ZunVec3 *bulletSize);
     i32 CalcLaserHitbox(const ZunVec3 *laserCenter, const ZunVec3 *laserSize, const ZunVec3 *rotation, f32 angle,
                         i32 canGraze);
+    i32 CalcReflectionCollision(const ZunVec3 *bulletCenter, const ZunVec3 *bulletSize);
     i32 CalcDamageToEnemy(const ZunVec3 *enemyPos, const ZunVec3 *enemySize, bool *unk);
     i32 CalcItemBoxCollision(const ZunVec3 *center, const ZunVec3 *size) const;
     void ScoreGraze(const ZunVec3 *center) const;
@@ -206,6 +207,12 @@ struct Player
     ZunVec3 grabItemBottomRight;
     ZunVec3 hitboxSize;
     ZunVec3 grabItemSize;
+    ZunVec3 reflectionSize;
+    ZunVec3 reflectionOffset;
+    ZunVec3 reflectionTopLeft;
+    ZunVec3 reflectionBottomRight;
+    ZunTimer reflectionTimer;
+    ZunTimer reflectionActiveTimer;
     ZunVec3 orbsPosition[2];
     ZunVec3 bombRegionPositions[32];
     ZunVec3 bombRegionSizes[32];

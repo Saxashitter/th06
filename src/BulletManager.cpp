@@ -904,7 +904,19 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 curBullet->unk_5c0 = 0;
             }
 
-            if (curBullet->isGrazed == 0)
+
+            if (g_Player.CalcReflectionCollision(&curBullet->pos, &curBullet->sprites.grazeSize) == 1 || curBullet->isReflected == 1)
+            {  
+                if (curBullet->isReflected != 1)
+                {
+                    curBullet->velocity.x *= -1;
+                    curBullet->velocity.y *= -1;
+                    curBullet->isReflected = 1;
+                    curBullet->angle += RADIANS(180);
+                }
+
+            }
+            else if (curBullet->isGrazed == 0)
             {
                 grazeState = g_Player.CheckGraze(&curBullet->pos, &curBullet->sprites.grazeSize);
 

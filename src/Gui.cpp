@@ -658,7 +658,7 @@ ZunResult GuiImpl::RunMsg()
                                            g_Stage.stdData->songNames[this->msg.currentInstr->args.music]);
             if (g_Supervisor.PlayMidiFile(this->msg.currentInstr->args.music) != ZUN_SUCCESS)
             {
-                g_Supervisor.PlayAudio(g_Stage.stdData->songPaths[this->msg.currentInstr->args.music]);
+                g_Supervisor.PlayAudio(g_Stage.stdData->songPaths[this->msg.currentInstr->args.music], true);
             }
             break;
         case MSG_OPCODE_TEXTINTRO:

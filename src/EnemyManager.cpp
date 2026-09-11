@@ -602,7 +602,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
             if (curEnemy->flags.unk6 != 0)
             {
                 damage = g_Player.CalcDamageToEnemy(&curEnemy->position, &curEnemy->hitboxDimensions, &local_8);
-                if (70 <= damage)
+                if (70 <= damage && g_GameManager.character != CHARA_POYO) // remove cap ONLY if were poyo...
                 {
                     damage = 70;
                 }
@@ -638,6 +638,8 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                 }
                 if (curEnemy->flags.unk10 != 0)
                 {
+                    if (damage != 0)
+                        utils::DebugPrint2("damage: %d", damage);
                     curEnemy->life -= damage;
                 }
                 if (g_Player.positionOfLastEnemyHit.y < curEnemy->position.y)

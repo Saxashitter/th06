@@ -1,17 +1,25 @@
 entry {
-    path: "data/player02.png",
-    path_2: "data/player02_a.png",
+    path: "data/playerpoyo.png",
+    path_2: "data/playerpoyo_a.png",
     has_data: false,
-    rt_width: 128,
-    rt_height: 128,
+    rt_width: 512,
+    rt_height: 512,
     rt_format: FORMAT_ARGB_4444,
     sprites: {
-        idle: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
-        gun: {x: 40.0, y: 49.0, w: 40.0, h: 49.0},
-        swing1: {x: 40.0, y: 0.0, w: 40.0, h: 49.0},
-        swing2: {x: 80.0, y: 0.0, w: 40.0, h: 49.0},
-        swing3: {x: 0.0, y: 49.0, w: 40.0, h: 49.0},
-        bullet: {x: 80.0, y: 49.0, w: 4.0, h: 7.0, id: 64},
+        idle1: {x: 0.0, y: 0.0, w: 64.0, h: 96.0},
+        idle2: {x: 66.0, y: 0.0, w: 64.0, h: 96.0},
+        idle3: {x: 132.0, y: 0.0, w: 64.0, h: 96.0},
+        swing1: {x: 198.0, y: 0.0, w: 64.0, h: 96.0},
+        swing2: {x: 264.0, y: 0.0, w: 64.0, h: 96.0},
+        swing3: {x: 330.0, y: 0.0, w: 64.0, h: 96.0},
+        right1: {x: 396.0, y: 0.0, w: 64.0, h: 96.0},
+        right2: {x: 0.0, y: 98.0, w: 64.0, h: 96.0},
+        right3: {x: 66.0, y: 98.0, w: 64.0, h: 96.0},
+        left1: {x: 132.0, y: 98.0, w: 64.0, h: 96.0},
+        left2: {x: 198.0, y: 98.0, w: 64.0, h: 96.0},
+        left3: {x: 264.0, y: 98.0, w: 64.0, h: 96.0},
+        bullet: {x: 357.0, y: 138.0, w: 10.0, h: 24.0, id: 64},
+
         sprite6: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
         sprite7: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
         sprite8: {x: 0.0, y: 0.0, w: 40.0, h: 49.0},
@@ -33,53 +41,56 @@ entry {
 // idle
 script 0 script0 {
     loop {
-        ins_1(idle);
-+8: // 8
+        ins_1(idle1);
++8:
+        ins_1(idle2);
++8:
+        ins_1(idle3);
++8:
     }
 }
 
 
 script 1 script1 {
     loop {
-        ins_1(idle);
+        ins_1(left1);
 +8: // 8
+        ins_1(left2);
++8: // 8
+        ins_1(left3);
     }
 }
 
 
 script 2 script2 {
     loop {
-        ins_1(idle);
+        ins_1(right1);
 +8: // 25
-
+        ins_1(right2);
++8:
+        ins_1(right3);
     }
 }
-
 
 script 3 script3 {
-    ins_7();
-
+    ins_1(swing1);
++4:
+    ins_1(swing2);
++4:
+    ins_1(swing3);
++15:
     loop {
-        ins_1(idle);
-+8: // 22
+        ins_1(idle1);
++8:
+        ins_1(idle2);
++8:
+        ins_1(idle3);
++8:
     }
 }
-
-
-script 4 script4 {
-    ins_7();
-    loop {
-        ins_1(idle);
-+8: // 25
-    }
-}
-
 
 script 64 script5 {
-    ins_10(0.0, 0.0, 0.1);
-    ins_2(1.5, 1.5);
-    ins_3(0x80);
-    ins_1(sprite64);
+    ins_1(bullet);
     ins_31(true);
 +10000: // 10000
     ins_15();
