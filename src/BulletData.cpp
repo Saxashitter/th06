@@ -1670,15 +1670,15 @@ static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank1[1] = {
 };
 
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank2[1] = {
-    {15, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 160, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET, SOUND_POYO_SHOOT},
+    {15, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 210, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET, SOUND_POYO_SHOOT},
 };
 
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank3[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 133, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET, SOUND_POYO_SHOOT},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 180, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET, SOUND_POYO_SHOOT},
 };
 
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank4[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 144, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET, SOUND_POYO_SHOOT},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 250, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET, SOUND_POYO_SHOOT},
 };
 /* Poyo */
 extern const CharacterPowerData g_CharacterPowerDataPoyo[9] = {

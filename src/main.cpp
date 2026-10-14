@@ -4,6 +4,7 @@
 
 #include "AnmManager.hpp"
 #include "Chain.hpp"
+#include "DebugConsole.hpp"
 #include "FileSystem.hpp"
 #include "GameErrorContext.hpp"
 #include "GameWindow.hpp"
@@ -70,6 +71,12 @@ restart:
     {
         goto stop;
     }
+#ifdef DEBUG_CONSOLE
+    if (DebugConsole::RegisterChain() != ZUN_SUCCESS)
+    {
+        goto stop;
+    }
+#endif
     if (!g_Supervisor.cfg.windowed)
     {
         SDL_ShowCursor(SDL_DISABLE);
@@ -87,6 +94,9 @@ restart:
             {
                 goto stop;
             }
+#ifdef DEBUG_CONSOLE
+            DebugConsole::HandleEvent(&e);
+#endif
         }
 
         renderResult = g_GameWindow.Render();

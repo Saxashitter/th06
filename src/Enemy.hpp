@@ -253,4 +253,6 @@ struct Enemy
     i32 timerCallbackSub;
     f32 exInsFunc6Angle;
     ZunTimer exInsFunc6Timer;
+    // velocity from poyo's bat, decays to zero over a few frames
+    ZunVec3 knockbackVelocity;
 };

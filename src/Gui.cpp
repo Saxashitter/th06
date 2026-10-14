@@ -525,6 +525,37 @@ void Gui::FreeMsgFile() const
     this->impl->msg.instrs = NULL;
 }
 
+// Leaves the current stage for whatever comes after it: the next stage, the ending or the result screen.
+void Gui::EndStage()
+{
+    g_GameManager.guiScore = g_GameManager.score;
+    if (g_GameManager.isInPracticeMode)
+    {
+        g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
+        return;
+    }
+    if (g_GameManager.currentStage < 5 || (g_GameManager.difficulty != EASY && g_GameManager.currentStage == 5))
+    {
+        g_Supervisor.curState = SUPERVISOR_STATE_GAMEMANAGER_REINIT;
+    }
+    else if (!g_GameManager.isInReplay)
+    {
+        if (g_GameManager.difficulty == EXTRA)
+        {
+            g_GameManager.isGameCompleted = 1;
+            g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
+        }
+        else
+        {
+            g_Supervisor.curState = SUPERVISOR_STATE_ENDING;
+        }
+    }
+    else
+    {
+        g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU_REPLAY;
+    }
+}
+
 void Gui::MsgRead(i32 msgIdx) const
 {
     this->impl->MsgRead(msgIdx);
@@ -688,35 +719,7 @@ ZunResult GuiImpl::RunMsg()
             g_Supervisor.FadeOutMusic(4.0);
             break;
         case MSG_OPCODE_STAGEEND:
-            g_GameManager.guiScore = g_GameManager.score;
-            if (g_GameManager.isInPracticeMode)
-            {
-                g_GameManager.guiScore = g_GameManager.score;
-                g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
-                goto SKIP_TIME_INCREMENT;
-            }
-            if (g_GameManager.currentStage < 5 || (g_GameManager.difficulty != EASY && g_GameManager.currentStage == 5))
-            {
-                g_Supervisor.curState = SUPERVISOR_STATE_GAMEMANAGER_REINIT;
-            }
-            else if (!g_GameManager.isInReplay)
-            {
-                if (g_GameManager.difficulty == EXTRA)
-                {
-                    g_GameManager.isGameCompleted = 1;
-                    g_GameManager.guiScore = g_GameManager.score;
-                    g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
-                    goto SKIP_TIME_INCREMENT;
-                }
-                else
-                {
-                    g_Supervisor.curState = SUPERVISOR_STATE_ENDING;
-                }
-            }
-            else
-            {
-                g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU_REPLAY;
-            }
+            Gui::EndStage();
             goto SKIP_TIME_INCREMENT;
         case MSG_OPCODE_WAITSKIPPABLE:
             this->msg.dialogueSkippable = this->msg.currentInstr->args.dialogueSkippable;

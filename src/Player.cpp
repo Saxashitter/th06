@@ -9,6 +9,7 @@
 #include "BulletData.hpp"
 #include "BulletManager.hpp"
 #include "ChainPriorities.hpp"
+#include "DebugConsole.hpp"
 #include "EclManager.hpp"
 #include "EffectManager.hpp"
 #include "EnemyManager.hpp"
@@ -109,7 +110,7 @@ ZunResult Player::AddedCallback(Player *p)
     p->positionCenter.y = g_GameManager.arcadeRegionSize.y - 64.0f;
     p->positionCenter.z = 0.49;
     p->reflectionOffset.x = 0;
-    p->reflectionOffset.y = -7;
+    p->reflectionOffset.y = -18;
     p->reflectionOffset.z = 0;
     p->orbsPosition[0].z = 0.49;
     p->orbsPosition[1].z = 0.49;
@@ -123,8 +124,8 @@ ZunResult Player::AddedCallback(Player *p)
     p->grabItemSize.x = 12.0;
     p->grabItemSize.y = 12.0;
     p->grabItemSize.z = 5.0;
-    p->reflectionSize.x = 20;
-    p->reflectionSize.y = 20;
+    p->reflectionSize.x = 15;
+    p->reflectionSize.y = 10;
     p->reflectionSize.z = 5.0;
     p->playerDirection = MOVEMENT_NONE;
     std::memcpy(&p->characterData, &g_CharData[g_GameManager.CharacterShotType()], sizeof(CharacterData));
@@ -194,9 +195,13 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     {
         if (g_GameManager.character == CHARA_POYO)
         {
-            g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_POYO_SWING);
-            p->reflectionTimer.SetCurrent(15);
-            p->reflectionActiveTimer.SetCurrent(15);
+            if (p->reflectionTimer.AsFrames() <= 0)
+            {
+                g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_POYO_SWING);
+                p->reflectionTimer.SetCurrent(23);
+                p->reflectionActiveTimer.SetCurrent(6);
+                p->fireBulletTimer.SetCurrent(-1);
+            }
         }
         else
         {
@@ -508,7 +513,7 @@ i32 Player::CalcDamageToEnemy(const ZunVec3 *enemyPos, const ZunVec3 *enemyHitbo
         // count melee damage too
         if (this->CalcReflectionCollision(enemyPos, enemyHitboxSize) == 1)
         {
-            damage += 40;
+            damage += 80;
         }
 
     }
@@ -824,43 +829,42 @@ ZunResult Player::HandlePlayerInputs()
         verticalSpeed = horizontalSpeed;
     }
 
-    if (horizontalSpeed < 0.0f && this->previousHorizontalSpeed >= 0.0f)
+    if (g_GameManager.character == CHARA_POYO)
     {
-        if (g_GameManager.character == CHARA_POYO)
-            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_POYO_LEFT);
-        else
-            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_MOVING_LEFT);
-    }
-    else if (!horizontalSpeed && this->previousHorizontalSpeed < 0.0f)
-    {
-        if (g_GameManager.character == CHARA_POYO)
+        // the swing plays out uninterrupted; once reflectionTimer runs out, pick up whatever poyo is doing now
+        if (this->reflectionTimer.AsFrames() <= 0)
         {
-            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_POYO_IDLE);
+            i32 wantedScript = ANM_SCRIPT_POYO_IDLE;
+            if (horizontalSpeed < 0.0f)
+            {
+                wantedScript = ANM_SCRIPT_POYO_LEFT;
+            }
+            else if (horizontalSpeed > 0.0f)
+            {
+                wantedScript = ANM_SCRIPT_POYO_RIGHT;
+            }
+            if (this->playerSprite.anmFileIndex != wantedScript)
+            {
+                g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, wantedScript);
+            }
         }
-        else
+    }
+    else
+    {
+        if (horizontalSpeed < 0.0f && this->previousHorizontalSpeed >= 0.0f)
+        {
+            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_MOVING_LEFT);
+        }
+        else if (!horizontalSpeed && this->previousHorizontalSpeed < 0.0f)
         {
             g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_STOPPING_LEFT);
         }
-    }
 
-    if (horizontalSpeed > 0.0f && this->previousHorizontalSpeed <= 0.0f)
-    {
-        if (g_GameManager.character == CHARA_POYO)
-        {
-            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_POYO_RIGHT);
-        }
-        else
+        if (horizontalSpeed > 0.0f && this->previousHorizontalSpeed <= 0.0f)
         {
             g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_MOVING_RIGHT);
         }
-    }
-    else if (!horizontalSpeed && this->previousHorizontalSpeed > 0.0f)
-    {
-        if (g_GameManager.character == CHARA_POYO)
-        {
-            g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_POYO_IDLE);
-        }
-        else
+        else if (!horizontalSpeed && this->previousHorizontalSpeed > 0.0f)
         {
             g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_STOPPING_RIGHT);
         }
@@ -898,7 +902,6 @@ ZunResult Player::HandlePlayerInputs()
     }
 
     this->hitboxTopLeft = this->positionCenter - this->hitboxSize;
-
     this->hitboxBottomRight = this->positionCenter + this->hitboxSize;
 
     this->grabItemTopLeft = this->positionCenter - this->grabItemSize;
@@ -906,7 +909,6 @@ ZunResult Player::HandlePlayerInputs()
     this->grabItemBottomRight = this->positionCenter + this->grabItemSize;
 
     this->reflectionTopLeft = this->positionCenter + this->reflectionOffset - this->reflectionSize;
-
     this->reflectionBottomRight = this->positionCenter + this->reflectionOffset + this->reflectionSize;
 
     this->orbsPosition[0] = this->positionCenter;
@@ -1006,7 +1008,7 @@ ZunResult Player::HandlePlayerInputs()
     this->orbsPosition[1].x += horizontalOrbOffset;
     this->orbsPosition[0].y += verticalOrbOffset;
     this->orbsPosition[1].y += verticalOrbOffset;
-    if (IS_PRESSED(TH_BUTTON_SHOOT) && !g_Gui.HasCurrentMsgIdx())
+    if (IS_PRESSED(TH_BUTTON_SHOOT) && !g_Gui.HasCurrentMsgIdx() && this->reflectionTimer.AsFrames() <= 0)
     {
         this->StartFireBulletTimer(this);
     }
@@ -1526,6 +1528,13 @@ void Player::ScoreGraze(const ZunVec3 *center) const
 void Player::Die()
 {
     int curLaserTimerIdx;
+
+#ifdef DEBUG_CONSOLE
+    if (DebugConsole::IsGodModeEnabled())
+    {
+        return;
+    }
+#endif
 
     g_EnemyManager.spellcardInfo.isCapturing = 0;
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_12, &this->positionCenter, 1, COLOR_NEONBLUE);

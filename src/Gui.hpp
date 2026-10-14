@@ -138,6 +138,7 @@ struct Gui
     void FreeMsgFile() const;
 
     bool IsStageFinished() const;
+    static void EndStage();
 
     void UpdateStageElements();
     bool HasCurrentMsgIdx() const;

@@ -3,6 +3,7 @@
 #include "AsciiManager.hpp"
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
+#include "EffectManager.hpp"
 #include "Enemy.hpp"
 #include "GameManager.hpp"
 #include "Gui.hpp"
@@ -372,6 +373,41 @@ u32 BulletManager::SpawnSingleBullet(const EnemyBulletShooter *bulletProps, i32 
         bullet->dirChangeNumTimes = 0;
     }
     return 0;
+}
+
+// Damage each bullet sent back by poyo's bat deals when it runs into an enemy.
+#define POYO_REFLECTED_BULLET_DAMAGE 20
+
+i32 BulletManager::CalcReflectedBulletDamage(const ZunVec3 *enemyPos, const ZunVec3 *enemyHitboxSize)
+{
+    ZunVec3 enemyTopLeft, enemyBottomRight;
+    ZunVec3 bulletTopLeft, bulletBottomRight;
+    Bullet *bullet;
+    i32 i;
+    i32 damage;
+
+    damage = 0;
+    ZunVec3::SetVecCorners(&enemyTopLeft, &enemyBottomRight, enemyPos, enemyHitboxSize);
+    for (bullet = &this->bullets[0], i = 0; i < ARRAY_SIZE_SIGNED(this->bullets); i++, bullet++)
+    {
+        if (bullet->state != 1 || bullet->isReflected != 1)
+        {
+            continue;
+        }
+
+        ZunVec3::SetVecCorners(&bulletTopLeft, &bulletBottomRight, &bullet->pos, &bullet->sprites.grazeSize);
+        if (bulletTopLeft.x > enemyBottomRight.x || bulletBottomRight.x < enemyTopLeft.x ||
+            bulletTopLeft.y > enemyBottomRight.y || bulletBottomRight.y < enemyTopLeft.y)
+        {
+            continue;
+        }
+
+        damage += POYO_REFLECTED_BULLET_DAMAGE;
+        // play the bullet's fade-out so it can't hit again
+        bullet->state = 5;
+        g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_5, &bullet->pos, 1, COLOR_WHITE);
+    }
+    return damage;
 }
 
 void BulletManager::RemoveAllBullets(bool turnIntoItem)

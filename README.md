@@ -45,6 +45,7 @@ This will output the build files to the `build` directory, and then compilation 
 ##### Build Options (Use with Premake Invocation)
 `--no-asoundlib`: On Linux, doesn't build MIDI support. Removes libasound as a dev and runtime dependency
 `--use-c23-embed`: Uses `#embed` for resource inclusion instead of a lua script in the Premake file.
+`--no-debug-console`: Builds without the in-game debug console (opened with the `` ` `` key, type `help` for a list of commands).
 
 ##### Build Example (Debian-based Linux)
 

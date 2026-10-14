@@ -26,6 +26,11 @@ newoption {
    description = "Embeds resources using #embed rather than the premake script. Makes modifying and testing shaders less of a pain."
 }
 
+newoption {
+   trigger = "no-debug-console",
+   description = "Builds without the in-game debug console (opened with the ` key)."
+}
+
 project "th06"
   language "C++"
   cppdialect "C++20"
@@ -41,6 +46,7 @@ project "th06"
     "src/BulletManager.cpp",
     "src/Chain.cpp",
     "src/Controller.cpp",
+    "src/DebugConsole.cpp",
     "src/EclManager.cpp",
     "src/EffectManager.cpp",
     "src/Ending.cpp",
@@ -83,6 +89,10 @@ project "th06"
   }
 
   includedirs { "src" }
+
+  if _OPTIONS["no-debug-console"] == nil then
+    defines { "DEBUG_CONSOLE" }
+  end
 
   filter "toolset:gcc"   buildoptions { "-Wall", "-Wextra", "-Wpedantic", "-fjump-tables" }
   filter "toolset:clang" buildoptions { "-Wall", "-Wextra", "-Wpedantic", "-Wno-gnu-anonymous-struct" }

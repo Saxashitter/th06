@@ -97,6 +97,7 @@ struct BulletManager
     static void DrawBullet(Bullet *bullet);
 
     void RemoveAllBullets(bool turnIntoItem);
+    i32 CalcReflectedBulletDamage(const ZunVec3 *enemyPos, const ZunVec3 *enemyHitboxSize);
     void InitializeToZero();
 
     void TurnAllBulletsIntoPoints();

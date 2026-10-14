@@ -154,7 +154,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         vmList = &menu->vm[34];
         for (i = 0; i < 11; i++, vmList++)
         {
-            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, 0x73);
+            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, ANM_OFFSET_TITLE04S - ANM_OFFSET_TITLE04);
         }
         for (i = 0; i < 9; i++, vmList++)
         {
@@ -164,7 +164,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 continue;
             }
             vmList->flags.flag1 = 1;
-            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, 0x73);
+            DrawMenuItem(vmList, i, menu->cursor, menu->color2, menu->color1, ANM_OFFSET_TITLE04S - ANM_OFFSET_TITLE04);
         }
         for (i = 0; i < 18; i++, vmList++)
         {
@@ -184,7 +184,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 g_AnmManager->SetActiveSprite(vmList, mapping % 10 + ANM_SPRITE_TITLE01_START);
             }
             vmList->baseSpriteIndex = vmList->activeSpriteIndex;
-            DrawMenuItem(vmList, i / 2, menu->cursor, menu->color2, menu->color1, 0x7a);
+            DrawMenuItem(vmList, i / 2, menu->cursor, menu->color2, menu->color1, ANM_OFFSET_TITLE01S - ANM_OFFSET_TITLE01);
         }
         if (32 <= menu->stateTimer)
         {
@@ -573,8 +573,8 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                     vmList[1].pendingInterrupt = 0;
                 }
             }
-            vmList = &menu->vm[93];
-            for (i = 0; i < 2; i++, vmList += 2)
+            vmList = &menu->vm[94];
+            for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != menu->cursor)
                 {
@@ -608,12 +608,12 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         {
             menu->cursor = 1 - menu->cursor;
         }
-        vmList = &menu->vm[93];
-        for (i = 0; i < 2; i++, vmList += 2)
+        vmList = &menu->vm[94];
+        for (i = 0; i < 3; i++, vmList += 2)
         {
             vmList[1].flags.colorOp = AnmVmColorOp_Add;
         }
-        vmList = &menu->vm[93 + g_GameManager.character * 2];
+        vmList = &menu->vm[94 + g_GameManager.character * 2];
         for (i = 0; i < 2; i++, vmList++)
         {
             vmList->flags.colorOp = AnmVmColorOp_Add;
@@ -661,7 +661,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             {
                 menu->vm[i].pendingInterrupt = 7;
             }
-            vmList = &menu->vm[93];
+            vmList = &menu->vm[94];
             for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != g_GameManager.character)
@@ -766,7 +766,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                     vmList[1].pendingInterrupt = 0;
                 }
             }
-            vmList = &menu->vm[93];
+            vmList = &menu->vm[94];
             for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != g_GameManager.character)
@@ -825,7 +825,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                     vmList[1].pendingInterrupt = 0;
                 }
             }
-            vmList = &menu->vm[93];
+            vmList = &menu->vm[94];
             for (i = 0; i < 3; i++, vmList += 2)
             {
                 if (i != g_GameManager.character)
@@ -1104,7 +1104,7 @@ ZunResult MainMenu::DrawStartMenu(void)
     AnmVm *drawVm = this->vm;
     for (i = 0; i < 8; i++, drawVm++ /* zun why */)
     {
-        DrawMenuItem(drawVm, i, this->cursor, COLOR_RED, COLOR_START_MENU_ITEM_INACTIVE, 122);
+        DrawMenuItem(drawVm, i, this->cursor, COLOR_RED, COLOR_START_MENU_ITEM_INACTIVE, ANM_OFFSET_TITLE01S - ANM_OFFSET_TITLE01);
     }
     if (this->stateTimer >= 0x14)
     {
@@ -1981,7 +1981,7 @@ ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
             COLOR_SET_ALPHA(menu->menuTextColor, targetOpacity * menu->numFramesSinceActive / menu->framesInactive +
                                                      COLOR_ALPHA(menu->minimumOpacity)));
     }
-    for (vmIdx = 0; vmIdx < 98; vmIdx++, curVm++)
+    for (vmIdx = 0; vmIdx < 100; vmIdx++, curVm++)
     {
         if (curVm->sprite == NULL)
         {

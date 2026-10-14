@@ -523,6 +523,11 @@ ZunResult EnemyManager::RegisterChain(const char *stgEnm1, const char *stgEnm2)
     return ZUN_SUCCESS;
 }
 
+// Initial pixels per frame an enemy gets launched at when poyo's bat hits it.
+#define POYO_BAT_KNOCKBACK_SPEED 8.0f
+// Fraction of knockback velocity kept each frame.
+#define POYO_BAT_KNOCKBACK_FRICTION 0.85f
+
 ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
 {
     Enemy *curEnemy;
@@ -532,8 +537,10 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
     i32 enemyIdx;
     i32 damage;
     bool local_8;
+    bool batHitEnemy;
 
     local_8 = false;
+    batHitEnemy = false;
     mgr->RunEclTimeline();
     for (curEnemy = &mgr->enemies[0], mgr->enemyCount = 0, enemyIdx = 0; enemyIdx < ARRAY_SIZE_SIGNED(mgr->enemies) - 1;
          enemyIdx++, curEnemy++)
@@ -544,6 +551,27 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
         }
         mgr->enemyCount++;
         curEnemy->Move();
+
+        if (curEnemy->knockbackVelocity.x != 0.0f || curEnemy->knockbackVelocity.y != 0.0f)
+        {
+            f32 stepX = curEnemy->knockbackVelocity.x * g_Supervisor.effectiveFramerateMultiplier;
+            f32 stepY = curEnemy->knockbackVelocity.y * g_Supervisor.effectiveFramerateMultiplier;
+            curEnemy->position.x += stepX;
+            curEnemy->position.y += stepY;
+            // enemies gliding along a scripted path would snap right back otherwise
+            curEnemy->moveInterpStartPos.x += stepX;
+            curEnemy->moveInterpStartPos.y += stepY;
+
+            f32 friction = powf(POYO_BAT_KNOCKBACK_FRICTION, g_Supervisor.effectiveFramerateMultiplier);
+            curEnemy->knockbackVelocity.x *= friction;
+            curEnemy->knockbackVelocity.y *= friction;
+            if (curEnemy->knockbackVelocity.x * curEnemy->knockbackVelocity.x +
+                    curEnemy->knockbackVelocity.y * curEnemy->knockbackVelocity.y <
+                0.01f)
+            {
+                curEnemy->knockbackVelocity = ZunVec3(0.0f, 0.0f, 0.0f);
+            }
+        }
 
         curEnemy->ClampPos();
         if (curEnemy->flags.unk8 == 0 &&
@@ -601,6 +629,13 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
             }
             if (curEnemy->flags.unk6 != 0)
             {
+                // checked before CalcDamageToEnemy, which also counts the bat's damage
+                bool hitByBat = g_GameManager.character == CHARA_POYO &&
+                                g_Player.CalcReflectionCollision(&curEnemy->position, &curEnemy->hitboxDimensions) == 1;
+                if (hitByBat)
+                {
+                    batHitEnemy = true;
+                }
                 damage = g_Player.CalcDamageToEnemy(&curEnemy->position, &curEnemy->hitboxDimensions, &local_8);
                 if (70 <= damage && g_GameManager.character != CHARA_POYO) // remove cap ONLY if were poyo...
                 {
@@ -636,11 +671,33 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                         damage = 0;
                     }
                 }
+                if (g_GameManager.character == CHARA_POYO /* && curEnemy->flags.isBoss */ && curEnemy->flags.unk10 != 0)
+                {
+                    damage += g_BulletManager.CalcReflectedBulletDamage(&curEnemy->position, &curEnemy->hitboxDimensions);
+                }
                 if (curEnemy->flags.unk10 != 0)
                 {
                     if (damage != 0)
                         utils::DebugPrint2("damage: %d", damage);
                     curEnemy->life -= damage;
+                    // poyo's bat launches regular enemies away from him; the velocity is applied after Move()
+                    if (hitByBat && !curEnemy->flags.isBoss)
+                    {
+                        ZunVec3 knockback(curEnemy->position.x - g_Player.positionCenter.x,
+                                          curEnemy->position.y - g_Player.positionCenter.y, 0.0f);
+                        f32 distance = ZUN_SQRTF(knockback.x * knockback.x + knockback.y * knockback.y);
+                        if (distance > 0.0f)
+                        {
+                            knockback.x /= distance;
+                            knockback.y /= distance;
+                        }
+                        else
+                        {
+                            knockback.y = -1.0f;
+                        }
+                        curEnemy->knockbackVelocity.x = knockback.x * POYO_BAT_KNOCKBACK_SPEED;
+                        curEnemy->knockbackVelocity.y = knockback.y * POYO_BAT_KNOCKBACK_SPEED;
+                    }
                 }
                 if (g_Player.positionOfLastEnemyHit.y < curEnemy->position.y)
                 {
@@ -745,6 +802,11 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
         {
             curEnemy->bossTimer.Tick();
         }
+    }
+    // the bat only connects on one frame; every enemy it touched this frame already took the hit
+    if (batHitEnemy)
+    {
+        g_Player.reflectionActiveTimer.SetCurrent(0);
     }
     mgr->timelineTime.Tick();
     return CHAIN_CALLBACK_RESULT_CONTINUE;
