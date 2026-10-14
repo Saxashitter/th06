@@ -43,7 +43,9 @@ enum SoundIdx
     SOUND_1D = 29,
     SOUND_GRAZE = 30,
     SOUND_POWERUP = 31,
-    SOUND_POYO_SHOOT = 32
+    SOUND_POYO_SHOOT = 32,
+    SOUND_POYO_BAT_ATTACK = 33,
+    SOUND_POYO_BAT_HIT = 34
 };
 
 struct SoundBufferIdxVolume
@@ -65,6 +67,8 @@ struct WavData
     SDL_RWops *fileStream;
     u32 dataStartOffset;
     u32 samples;
+    // whole file read out of a DAT when fileStream reads from memory, NULL for a file on disk
+    u8 *archiveData;
 };
 
 struct MusicStream
@@ -93,7 +97,7 @@ struct SoundPlayer
     void StopBGM();
     void FadeOut(f32 seconds);
 
-    ZunResult LoadWav(const char *path);
+    ZunResult LoadWav(const char *path, bool fromArchive = false);
     ZunResult LoadPos(const char *path);
 
     void BackgroundMusicPlayerThread();
@@ -104,7 +108,7 @@ struct SoundPlayer
     SDL_AudioDeviceID audioDev;
     std::thread backgroundMusicThreadHandle;
     std::atomic_bool terminateFlag;
-    i32 soundBuffersToPlay[3];
+    i32 soundBuffersToPlay[8];
     MusicStream backgroundMusic;
     bool isLooping;
 };

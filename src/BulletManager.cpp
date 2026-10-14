@@ -949,6 +949,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                     curBullet->velocity.y *= -1;
                     curBullet->isReflected = 1;
                     curBullet->angle += RADIANS(180);
+                    g_SoundPlayer.PlaySoundByIdx(SOUND_POYO_BAT_HIT);
                 }
 
             }

@@ -20,6 +20,7 @@
 #include "ZunColor.hpp"
 #include "i18n.hpp"
 #include "utils.hpp"
+#include "Player.hpp"
 
 #include <SDL2/SDL_gamecontroller.h>
 #include <SDL2/SDL_timer.h>
@@ -2006,6 +2007,22 @@ ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
             g_AnmManager->Draw(curVm);
             std::memcpy(&curVm->pos, &posBackup, sizeof(ZunVec3));
         }
+    }
+    if (menu->gameState == STATE_SHOT_SELECT && g_GameManager.character == CHARA_POYO)
+    {
+        const ZunColor previousColor = g_AsciiManager.color;
+        const bool previousIsSelected = g_AsciiManager.isSelected;
+        ZunVec3 textPos(419.0f, 224.0f, 0.0f);
+
+        for (i32 shotType = 0; shotType < 2; shotType++)
+        {
+            g_AsciiManager.isSelected = menu->cursor == shotType;
+            g_AsciiManager.AddFormatText(&textPos, "Placeholder");
+            textPos.y += 48.0f;
+        }
+
+        g_AsciiManager.color = previousColor;
+        g_AsciiManager.isSelected = previousIsSelected;
     }
     switch (menu->gameState)
     {

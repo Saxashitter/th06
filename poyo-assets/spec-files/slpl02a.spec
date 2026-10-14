@@ -10,66 +10,66 @@ entry {
 
 // everything happens here
 script 0 script0 {
-    ins_1(sprite0);
-    ins_17(768.0, 128.0, 0.0);
-    ins_24();
+    sprite_set(sprite0);
+    move_position(768.0, 128.0, 0.0);
+    anm_halt_invisible();
 
 // animation that tweens in once a difficulty is selected or returning from shot select
 interrupt[7]:
-    ins_12(0xff, 15);
-    ins_2(1.0, 1.0);
-    ins_19(448.0, 128.0, 0.0, 30);
+    alpha_interp_linear(0xff, 15);
+    scale(1.0, 1.0);
+    move_position_interp_decelerate_slow(448.0, 128.0, 0.0, 30);
 +30: // 30
-    ins_21();
+    anm_halt();
 
 // animation that plays once the character is selected (moving right)
 interrupt[10]:
-    ins_2(0.0, 1.0);
-    ins_17(576.0, 128.0, 0.0);
-    ins_30(1.0, 1.0, 10);
-    ins_18(448.0, 128.0, 0.0, 10);
+    scale(0.0, 1.0);
+    move_position(576.0, 128.0, 0.0);
+    scale_interp_linear(1.0, 1.0, 10);
+    move_position_interp_linear(448.0, 128.0, 0.0, 10);
 +10: // 40
-    ins_21();
+    anm_halt();
 
 // animation that plays once the character is selected (pressing left)
 interrupt[9]:
-    ins_2(0.0, 1.0);
-    ins_17(320.0, 128.0, 0.0);
-    ins_30(1.0, 1.0, 10);
-    ins_18(448.0, 128.0, 0.0, 10);
+    scale(0.0, 1.0);
+    move_position(320.0, 128.0, 0.0);
+    scale_interp_linear(1.0, 1.0, 10);
+    move_position_interp_linear(448.0, 128.0, 0.0, 10);
 +10: // 50
-    ins_21();
+    anm_halt();
 
 // animation that plays once the character is deselected (pressing left)
 interrupt[12]:
-    ins_17(448.0, 128.0, 0.0);
-    ins_2(1.0, 1.0);
-    ins_30(0.0, 1.0, 10);
-    ins_18(576.0, 128.0, 0.0, 10);
+    move_position(448.0, 128.0, 0.0);
+    scale(1.0, 1.0);
+    scale_interp_linear(0.0, 1.0, 10);
+    move_position_interp_linear(576.0, 128.0, 0.0, 10);
 +10: // 60
-    ins_24();
+    anm_halt_invisible();
 
 // animation that plays once the character is deselected (moving right)
 interrupt[11]:
-    ins_2(1.0, 1.0);
-    ins_17(448.0, 128.0, 0.0);
-    ins_30(0.0, 1.0, 10);
-    ins_18(320.0, 128.0, 0.0, 10);
+    scale(1.0, 1.0);
+    move_position(448.0, 128.0, 0.0);
+    scale_interp_linear(0.0, 1.0, 10);
+    move_position_interp_linear(320.0, 128.0, 0.0, 10);
 +10: // 70
-    ins_24();
+    anm_halt_invisible();
 
 // the character returns to the right side of the screen (returning to difficulty select)
 interrupt[18]:
 interrupt[6]:
-    ins_19(768.0, 128.0, 0.0, 30);
+    move_position_interp_decelerate_slow(768.0, 128.0, 0.0, 30);
 +30: // 100
-    ins_24();
+    anm_halt_invisible();
 
 // transitioning to shot select
 interrupt[13]:
 interrupt[19]:
-    ins_19(320.0, 128.0, 0.0, 15);
-    ins_12(0x80, 15);
+    move_position_interp_decelerate_slow(320.0, 128.0, 0.0, 15);
+    alpha_interp_linear(0x80, 15);
 +30: // 130
-    ins_21();
+    anm_halt();
 }

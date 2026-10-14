@@ -9,6 +9,7 @@
 #include <SDL2/SDL_timer.h>
 #include <array>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <new>
 #include <vector>
@@ -27,21 +28,22 @@
 //   The scale is from 0 (no volume modification) to -10,000 (subtraction of 100 decibels, and basically silent).
 //   20 decibels affects wave amplitude by a factor of 10
 
-static const SoundBufferIdxVolume g_SoundBufferIdxVol[34] = {
+static const SoundBufferIdxVolume g_SoundBufferIdxVol[36] = {
     {0, -1500}, {0, -2000}, {1, -1200}, {1, -1400}, {2, -1000},  {3, -500},   {4, -500},   {5, -1700},
     {6, -1700}, {7, -1700}, {8, -1000}, {9, -1000}, {10, -1900}, {11, -1200}, {12, -900},  {5, -1500},
     {13, -900}, {14, -900}, {15, -600}, {16, -400}, {17, -1100}, {18, -900},  {5, -1800},  {6, -1800},
     {7, -1800}, {19, -300}, {20, -600}, {21, -800}, {22, -100},  {23, -500},  {24, -1000}, {25, -1000},
-    {26, -1000}
+    {26, -1000}, {27, -1000}, {28, -1000}
 };
-static const char *const g_SFXList[27] = {
+static const char *const g_SFXList[29] = {
     "data/wav/plst00.wav", "data/wav/enep00.wav",   "data/wav/pldead00.wav", "data/wav/power0.wav",
     "data/wav/power1.wav", "data/wav/tan00.wav",    "data/wav/tan01.wav",    "data/wav/tan02.wav",
     "data/wav/ok00.wav",   "data/wav/cancel00.wav", "data/wav/select00.wav", "data/wav/gun00.wav",
     "data/wav/cat00.wav",  "data/wav/lazer00.wav",  "data/wav/lazer01.wav",  "data/wav/enep01.wav",
     "data/wav/nep00.wav",  "data/wav/damage00.wav", "data/wav/item00.wav",   "data/wav/kira00.wav",
     "data/wav/kira01.wav", "data/wav/kira02.wav",   "data/wav/extend.wav",   "data/wav/timeout.wav",
-    "data/wav/graze.wav",  "data/wav/powerup.wav", "data/wav/post00.wav"
+    "data/wav/graze.wav",  "data/wav/powerup.wav", "data/wav/post00.wav",
+    "data/wav/poyo_batattack.wav", "data/wav/poyo_bathit.wav"
 };
 SoundPlayer g_SoundPlayer;
 
@@ -112,13 +114,20 @@ ZunResult SoundPlayer::Release(void)
     return ZUN_SUCCESS;
 }
 
+static void CloseWavStream(WavData *wav)
+{
+    SDL_RWclose(wav->fileStream);
+    wav->fileStream = NULL;
+    std::free(wav->archiveData);
+    wav->archiveData = NULL;
+}
+
 void SoundPlayer::StopBGM()
 {
     if (this->backgroundMusic.srcWav.fileStream != NULL)
     {
         this->soundBufMutex.lock();
-        SDL_RWclose(this->backgroundMusic.srcWav.fileStream);
-        this->backgroundMusic.srcWav.fileStream = NULL;
+        CloseWavStream(&this->backgroundMusic.srcWav);
         this->soundBufMutex.unlock();
 
         utils::DebugPrint2("stop BGM\n");
@@ -134,9 +143,10 @@ void SoundPlayer::FadeOut(f32 seconds)
     }
 }
 
-ZunResult SoundPlayer::LoadWav(const char *path)
+ZunResult SoundPlayer::LoadWav(const char *path, bool fromArchive)
 {
     SDL_RWops *fileStream;
+    u8 *archiveData = NULL;
     char idBuf[4];
     u32 riffSize;
     u32 wavDataSize;
@@ -155,11 +165,21 @@ ZunResult SoundPlayer::LoadWav(const char *path)
 
     utils::DebugPrint2("load BGM\n");
 
-    fileStream = SDL_RWFromFile(path, "r");
+    if (fromArchive)
+    {
+        // looked up by bare filename in the loaded DATs; the whole file stays in memory while it plays
+        archiveData = FileSystem::OpenPath(path, 0);
+        fileStream = archiveData != NULL ? SDL_RWFromConstMem(archiveData, g_LastFileSize) : NULL;
+    }
+    else
+    {
+        fileStream = SDL_RWFromFile(path, "r");
+    }
 
     if (fileStream == NULL)
     {
         utils::DebugPrint2("error : wav file load error %s\n", path);
+        std::free(archiveData);
         return ZUN_ERROR;
     }
 
@@ -269,6 +289,7 @@ ZunResult SoundPlayer::LoadWav(const char *path)
     }
 
     this->backgroundMusic.srcWav.fileStream = fileStream;
+    this->backgroundMusic.srcWav.archiveData = archiveData;
     this->backgroundMusic.srcWav.dataStartOffset = SDL_RWtell(fileStream);
     this->backgroundMusic.loopStart = 0;
     this->backgroundMusic.loopEnd = this->backgroundMusic.srcWav.samples;
@@ -280,6 +301,7 @@ ZunResult SoundPlayer::LoadWav(const char *path)
 
 fail:
     SDL_RWclose(fileStream);
+    std::free(archiveData);
     return ZUN_ERROR;
 }
 
@@ -498,7 +520,7 @@ void SoundPlayer::PlaySoundByIdx(SoundIdx idx)
         }
     }
 
-    if (i >= 3)
+    if (i >= ARRAY_SIZE(this->soundBuffersToPlay))
     {
         return;
     }
@@ -587,8 +609,7 @@ void SoundPlayer::MixAudio(u32 samples)
                 }
                 else
                 {
-                    SDL_RWclose(this->backgroundMusic.srcWav.fileStream);
-                    this->backgroundMusic.srcWav.fileStream = NULL;
+                    CloseWavStream(&this->backgroundMusic.srcWav);
 
                     break;
                 }
@@ -599,10 +620,10 @@ void SoundPlayer::MixAudio(u32 samples)
         {
             this->backgroundMusic.fadeoutProgress += samplesMixed;
 
-            if (this->backgroundMusic.fadeoutProgress >= this->backgroundMusic.fadeoutLen)
+            if (this->backgroundMusic.fadeoutProgress >= this->backgroundMusic.fadeoutLen &&
+                this->backgroundMusic.srcWav.fileStream != NULL)
             {
-                SDL_RWclose(this->backgroundMusic.srcWav.fileStream);
-                this->backgroundMusic.srcWav.fileStream = NULL;
+                CloseWavStream(&this->backgroundMusic.srcWav);
             }
         }
 

@@ -1,0 +1,3 @@
+# Loop times in milliseconds; decimals are allowed and loop end is exclusive.
+20910
+87121

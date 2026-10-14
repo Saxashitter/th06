@@ -428,6 +428,7 @@ static void CmdSkip(i32 argc, char **argv)
 
 static void CmdMap(i32 argc, char **argv)
 {
+    u16 power;
     i32 stage;
     i32 character;
     i32 shotType;
@@ -521,6 +522,8 @@ static void CmdMap(i32 argc, char **argv)
         difficulty = g_Supervisor.cfg.defaultDifficulty < EXTRA ? g_Supervisor.cfg.defaultDifficulty : NORMAL;
     }
 
+    power = g_GameManager.currentPower;
+
     if (IsStateChangePending())
     {
         PrintError("map: the game is busy switching screens, try again");
@@ -569,6 +572,11 @@ static void CmdMap(i32 argc, char **argv)
         g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU;
         PrintError("map: failed to load stage %d", stage);
         return;
+    }
+    else
+    {
+        g_GameManager.currentPower = power;
+        RedrawGuiCounters();
     }
 
     Print("map: stage %d as %s %s on %s", stage,

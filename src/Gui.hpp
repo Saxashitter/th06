@@ -80,6 +80,9 @@ struct GuiMsgVm
     u32 fontSize;
     u32 ignoreWaitCounter;
     u8 dialogueSkippable;
+    // text and color of dialogueLines[0..1] then introLines[0..1], drawn with AsciiManager instead of the VM's text
+    char asciiText[4][64];
+    ZunColor asciiColors[4];
 };
 
 struct GuiFormattedText
@@ -95,6 +98,7 @@ struct GuiImpl
     GuiImpl();
     ZunResult RunMsg();
     ZunResult DrawDialogue() const;
+    void DrawDialogueAscii() const;
     void MsgRead(i32 msgIdx);
 
     AnmVm vms[26];
@@ -109,6 +113,8 @@ struct GuiImpl
     AnmVm enemySpellcardBackground;
     AnmVm loadingScreenSprite;
     GuiMsgVm msg;
+    // set while the loaded msg file is poyo's own dialogue
+    bool msgUsesAsciiFont = false;
     u32 finishedStage;
     u32 stageScore;
     GuiFormattedText bonusScore;
@@ -134,7 +140,7 @@ struct Gui
     static ChainCallbackResult OnDraw(Gui *);
 
     ZunResult ActualAddedCallback();
-    ZunResult LoadMsg(const char *path) const;
+    ZunResult LoadMsg(const char *path, bool useAsciiFont = false) const;
     void FreeMsgFile() const;
 
     bool IsStageFinished() const;

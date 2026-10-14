@@ -86,6 +86,9 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
 
     g_AnmManager->SetDepthFunc(DEPTH_FUNC_ALWAYS);
     //    g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
+    // AsciiManager draws its strings in the order they're added, so this goes first to stay
+    // underneath the stage clear text like the regular dialogue font does
+    gui->impl->DrawDialogueAscii();
     if (gui->impl->finishedStage)
     {
         stringPos.x = GAME_REGION_LEFT + 42.0f;
@@ -332,7 +335,7 @@ ZunResult Gui::ActualAddedCallback()
         // case CHARA_POYO:
         if (g_GameManager.character == CHARA_POYO)
         {
-            if (this->LoadMsg("data/msg1-poyo.dat") != ZUN_SUCCESS)
+            if (this->LoadMsg("data/msg1-poyo.dat", true) != ZUN_SUCCESS)
             {
                 return ZUN_ERROR;
             }
@@ -491,11 +494,12 @@ ZunResult Gui::ActualAddedCallback()
     return ZUN_SUCCESS;
 }
 
-ZunResult Gui::LoadMsg(const char *path) const
+ZunResult Gui::LoadMsg(const char *path, bool useAsciiFont) const
 {
     i32 idx;
 
     this->FreeMsgFile();
+    this->impl->msgUsesAsciiFont = useAsciiFont;
     this->impl->msg.msgFile = (MsgRawHeader *)FileSystem::OpenPath(path, 0);
     if (this->impl->msg.msgFile == NULL)
     {
@@ -554,6 +558,33 @@ void Gui::EndStage()
     {
         g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU_REPLAY;
     }
+}
+
+// Copies msg text into an AsciiManager-sized buffer. The ascii font only has printable ASCII,
+// so each Shift-JIS character becomes a single '?'.
+static void CopyMsgTextForAscii(char *dst, const char *src)
+{
+    i32 len = 0;
+    const u8 *cur = (const u8 *)src;
+
+    while (*cur != 0 && len < 63)
+    {
+        if (*cur >= 0x20 && *cur < 0x7f)
+        {
+            dst[len++] = (char)*cur;
+        }
+        else if (*cur >= 0x80)
+        {
+            dst[len++] = '?';
+            // lead byte of a two-byte character
+            if (((*cur >= 0x81 && *cur <= 0x9f) || (*cur >= 0xe0 && *cur <= 0xfc)) && cur[1] != 0)
+            {
+                cur++;
+            }
+        }
+        cur++;
+    }
+    dst[len] = '\0';
 }
 
 void Gui::MsgRead(i32 msgIdx) const
@@ -647,9 +678,22 @@ ZunResult GuiImpl::RunMsg()
                                                  0x702 + args->text.textLine);
             this->msg.dialogueLines[args->text.textLine].fontWidth =
                 this->msg.dialogueLines[args->text.textLine].fontHeight = this->msg.fontSize;
-            g_AnmManager->DrawVmTextFmt(&this->msg.dialogueLines[args->text.textLine],
-                                        this->msg.textColorsA[args->text.textColor],
-                                        this->msg.textColorsB[args->text.textColor], args->text.text);
+            if (this->msgUsesAsciiFont)
+            {
+                // the VM still runs for its position and fades; DrawDialogue puts the text on top of it
+                if (args->text.textLine == 0)
+                {
+                    this->msg.asciiText[1][0] = '\0';
+                }
+                CopyMsgTextForAscii(this->msg.asciiText[args->text.textLine], args->text.text);
+                this->msg.asciiColors[args->text.textLine] = this->msg.textColorsA[args->text.textColor];
+            }
+            else
+            {
+                g_AnmManager->DrawVmTextFmt(&this->msg.dialogueLines[args->text.textLine],
+                                            this->msg.textColorsA[args->text.textColor],
+                                            this->msg.textColorsB[args->text.textColor], args->text.text);
+            }
             this->msg.framesElapsedDuringPause = 0;
             break;
         case MSG_OPCODE_WAIT:
@@ -696,9 +740,17 @@ ZunResult GuiImpl::RunMsg()
             args = &this->msg.currentInstr->args;
             g_AnmManager->SetAndExecuteScriptIdx(&this->msg.introLines[args->text.textLine],
                                                  args->text.textLine + 0x704);
-            g_AnmManager->DrawStringFormat(&this->msg.introLines[args->text.textLine],
-                                           this->msg.textColorsA[args->text.textColor],
-                                           this->msg.textColorsB[args->text.textColor], args->text.text);
+            if (this->msgUsesAsciiFont)
+            {
+                CopyMsgTextForAscii(this->msg.asciiText[2 + args->text.textLine], args->text.text);
+                this->msg.asciiColors[2 + args->text.textLine] = this->msg.textColorsA[args->text.textColor];
+            }
+            else
+            {
+                g_AnmManager->DrawStringFormat(&this->msg.introLines[args->text.textLine],
+                                               this->msg.textColorsA[args->text.textColor],
+                                               this->msg.textColorsB[args->text.textColor], args->text.text);
+            }
             this->msg.framesElapsedDuringPause = 0;
             break;
         case MSG_OPCODE_STAGERESULTS:
@@ -838,11 +890,76 @@ ZunResult GuiImpl::DrawDialogue() const
     g_AnmManager->SetColorOp(COMPONENT_ALPHA, COLOR_OP_MODULATE);
     g_AnmManager->SetColorOp(COMPONENT_RGB, COLOR_OP_MODULATE);
 
+    // with the ascii font, Gui::OnDraw queues the text through DrawDialogueAscii instead
+    if (this->msgUsesAsciiFont)
+    {
+        return ZUN_SUCCESS;
+    }
+
     g_AnmManager->DrawNoRotation(&this->msg.dialogueLines[0]);
     g_AnmManager->DrawNoRotation(&this->msg.dialogueLines[1]);
     g_AnmManager->DrawNoRotation(&this->msg.introLines[0]);
     g_AnmManager->DrawNoRotation(&this->msg.introLines[1]);
     return ZUN_SUCCESS;
+}
+
+// AsciiManager glyphs are 14x16 at scale 1.
+#define ASCII_GLYPH_WIDTH 14.0f
+#define ASCII_GLYPH_HEIGHT 16.0f
+
+// Draws each msg text line with AsciiManager inside the area its text VM would have covered,
+// shrinking lines that wouldn't fit and following the VM's alpha so fades still work.
+void GuiImpl::DrawDialogueAscii() const
+{
+    i32 idx;
+    const AnmVm *vm;
+    f32 areaWidth, areaHeight, left, top, scale;
+    i32 len;
+    ZunVec3 textPos;
+
+    // same cases where DrawDialogue shows nothing
+    if (!this->msgUsesAsciiFont || this->msg.currentMsgIdx < 0 ||
+        (g_GameManager.currentStage == 6 && (this->msg.currentMsgIdx == 1 || this->msg.currentMsgIdx == 11)))
+    {
+        return;
+    }
+    // the loading screen is drawn over regular dialogue text, but AsciiManager would draw on top of it
+    if (this->loadingScreenSprite.activeSpriteIndex >= 0)
+    {
+        return;
+    }
+
+    for (idx = 0; idx < 4; idx++)
+    {
+        vm = idx < 2 ? &this->msg.dialogueLines[idx] : &this->msg.introLines[idx - 2];
+        len = (i32)std::strlen(this->msg.asciiText[idx]);
+        if (len == 0 || vm->anmFileIndex < 0 || vm->sprite == NULL || !vm->flags.isVisible ||
+            (vm->color >> 24) == 0)
+        {
+            continue;
+        }
+
+        areaWidth = vm->sprite->widthPx * vm->scaleX;
+        areaHeight = vm->sprite->heightPx * vm->scaleY;
+        left = (vm->flags.anchor & AnmVmAnchor_Left) ? vm->pos.x : vm->pos.x - areaWidth / 2.0f;
+        top = (vm->flags.anchor & AnmVmAnchor_Top) ? vm->pos.y : vm->pos.y - areaHeight / 2.0f;
+
+        scale = areaWidth / (len * ASCII_GLYPH_WIDTH);
+        if (scale > 1.0f)
+        {
+            scale = 1.0f;
+        }
+        textPos = ZunVec3(left, top + (areaHeight - ASCII_GLYPH_HEIGHT * scale) / 2.0f, 0.0f);
+
+        g_AsciiManager.isGui = 0;
+        g_AsciiManager.scale.x = scale;
+        g_AsciiManager.scale.y = scale;
+        g_AsciiManager.color = (vm->color & 0xff000000) | (this->msg.asciiColors[idx] & 0x00ffffff);
+        g_AsciiManager.AddString(&textPos, this->msg.asciiText[idx]);
+    }
+    g_AsciiManager.scale.x = 1.0f;
+    g_AsciiManager.scale.y = 1.0f;
+    g_AsciiManager.color = COLOR_WHITE;
 }
 
 bool Gui::MsgWait() const

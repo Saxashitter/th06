@@ -774,13 +774,50 @@ ZunResult Supervisor::LoadConfig(const char *path)
     return ZUN_SUCCESS;
 }
 
-bool Supervisor::ReadMidiFile(u32 midiFileIdx, const char *path)
+// Poyo's music is only ever read from poyo.DAT. When playing as poyo, swaps "th06" for "thpy" in a
+// stage music path and writes it to poyoPath with the given extension (".mid" or ".wav"), but only
+// if poyo.DAT itself holds that file. Returns false to keep the regular track.
+static bool GetPoyoMusicPath(const char *path, const char *extension, char *poyoPath)
 {
+    char *th06Pos;
+    char *pathExtension;
+    const char *entryName;
+    Pbg3Archive *poyoArchive = g_Supervisor.pbg3Archives[POYO_PBG3_INDEX];
+
+    if (g_GameManager.character != CHARA_POYO || poyoArchive == NULL || std::strlen(path) >= 256)
+    {
+        return false;
+    }
+
+    std::strcpy(poyoPath, path);
+    th06Pos = std::strstr(poyoPath, "th06");
+    pathExtension = std::strrchr(poyoPath, '.');
+    if (th06Pos == NULL || pathExtension == NULL || std::strlen(extension) != std::strlen(pathExtension))
+    {
+        return false;
+    }
+    std::memcpy(th06Pos, "thpy", 4);
+    std::strcpy(pathExtension, extension);
+
+    // DAT entries are stored by bare filename
+    entryName = std::strrchr(poyoPath, '/');
+    entryName = entryName != NULL ? entryName + 1 : poyoPath;
+    return poyoArchive->FindEntry(entryName) >= 0;
+}
+
+bool Supervisor::ReadMidiFile(u32 midiFileIdx, const char *path, bool canReplaceWithPoyo)
+{
+    char poyoPath[256];
+
     // Return conventions seem opposite of normal? But they're never used anyway
     if (g_Supervisor.cfg.musicMode == MIDI)
     {
         if (g_Supervisor.midiOutput != NULL)
         {
+            if (canReplaceWithPoyo && GetPoyoMusicPath(path, ".mid", poyoPath))
+            {
+                path = poyoPath;
+            }
             g_Supervisor.midiOutput->ReadFileData(midiFileIdx, path);
         }
 
@@ -807,67 +844,29 @@ ZunResult Supervisor::PlayMidiFile(i32 midiFileIdx)
     return ZUN_ERROR;
 }
 
-static bool FileExists(const char *path)
-{
-    utils::DebugPrint2(path);
-    SDL_RWops *rw = SDL_RWFromFile(path, "rb");
-    if (rw != nullptr)
-    {
-        SDL_RWclose(rw);
-        utils::DebugPrint2("It's true!");
-        return true;
-    }
-    return false;
-}
-
 ZunResult Supervisor::PlayAudio(const char *path, bool canReplaceWithPoyo)
 {
     char wavName[256];
     char wavPos[256];
-    char th06Str[256];
+    char poyoPath[256];
     char *pathExtension;
-
-    std::strcpy(th06Str, path);
-
-    if (canReplaceWithPoyo && g_GameManager.character == CHARA_POYO)
-    {
-        char thpyStr[256];
-        char thpyWav[256];
-        char *tempExtension;
-
-        std::strcpy(thpyStr, th06Str);
-
-        char *th06Pos = std::strstr(thpyStr, "th06");
-        if (th06Pos != nullptr)
-        {
-            std::memcpy(th06Pos, "thpy", 4);
-
-            std::strcpy(thpyWav, thpyStr);
-            tempExtension = std::strrchr(thpyWav, '.');
-            tempExtension[1] = 'w';
-            tempExtension[2] = 'a';
-            tempExtension[3] = 'v';
-
-            if (FileExists(thpyWav))
-            {
-                std::strcpy(th06Str, thpyStr);
-            }
-        }
-    }
+    bool isPoyoTrack;
 
     if (g_Supervisor.cfg.musicMode == MIDI)
     {
         if (g_Supervisor.midiOutput != NULL)
         {
+            isPoyoTrack = canReplaceWithPoyo && GetPoyoMusicPath(path, ".mid", poyoPath);
             g_Supervisor.midiOutput->StopPlayback();
-            g_Supervisor.midiOutput->LoadFile(path);
+            g_Supervisor.midiOutput->LoadFile(isPoyoTrack ? poyoPath : path);
             g_Supervisor.midiOutput->Play();
         }
     }
     else if (g_Supervisor.cfg.musicMode == WAV)
     {
-        std::strcpy(wavName, th06Str);
-        std::strcpy(wavPos, th06Str);
+        isPoyoTrack = canReplaceWithPoyo && GetPoyoMusicPath(path, ".wav", poyoPath);
+        std::strcpy(wavName, isPoyoTrack ? poyoPath : path);
+        std::strcpy(wavPos, isPoyoTrack ? poyoPath : path);
         pathExtension = std::strrchr(wavName, L'.');
         pathExtension[1] = 'w';
         pathExtension[2] = 'a';
@@ -876,7 +875,8 @@ ZunResult Supervisor::PlayAudio(const char *path, bool canReplaceWithPoyo)
         pathExtension[1] = 'p';
         pathExtension[2] = 'o';
         pathExtension[3] = 's';
-        g_SoundPlayer.LoadWav(wavName);
+        // regular tracks stream from bgm\ on disk, poyo's from inside poyo.DAT (the .pos comes from the DATs either way)
+        g_SoundPlayer.LoadWav(wavName, isPoyoTrack);
         if (g_SoundPlayer.LoadPos(wavPos) < ZUN_SUCCESS)
         {
             g_SoundPlayer.PlayBGM(false);

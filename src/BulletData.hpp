@@ -7,3 +7,4 @@ extern const CharacterPowerData g_CharacterPowerDataReimuB[9];
 extern const CharacterPowerData g_CharacterPowerDataMarisaA[9];
 extern const CharacterPowerData g_CharacterPowerDataMarisaB[9];
 extern const CharacterPowerData g_CharacterPowerDataPoyo[9];
+extern const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoBomb[5];

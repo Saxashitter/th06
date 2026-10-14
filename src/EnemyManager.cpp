@@ -806,6 +806,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
     // the bat only connects on one frame; every enemy it touched this frame already took the hit
     if (batHitEnemy)
     {
+        g_SoundPlayer.PlaySoundByIdx(SOUND_POYO_BAT_HIT);
         g_Player.reflectionActiveTimer.SetCurrent(0);
     }
     mgr->timelineTime.Tick();

@@ -41,11 +41,11 @@ entry {
 // idle
 script 0 script0 {
     loop {
-        ins_1(idle1);
+        sprite_set(idle1);
 +8:
-        ins_1(idle2);
+        sprite_set(idle2);
 +8:
-        ins_1(idle3);
+        sprite_set(idle3);
 +8:
     }
 }
@@ -53,377 +53,377 @@ script 0 script0 {
 
 script 1 script1 {
     loop {
-        ins_1(left1);
+        sprite_set(left1);
 +8: // 8
-        ins_1(left2);
+        sprite_set(left2);
 +8: // 8
-        ins_1(left3);
+        sprite_set(left3);
     }
 }
 
 
 script 2 script2 {
     loop {
-        ins_1(right1);
+        sprite_set(right1);
 +8: // 25
-        ins_1(right2);
+        sprite_set(right2);
 +8:
-        ins_1(right3);
+        sprite_set(right3);
     }
 }
 
 script 3 script3 {
-    ins_1(swing1);
+    sprite_set(swing1);
 +4:
-    ins_1(swing2);
+    sprite_set(swing2);
 +4:
-    ins_1(swing3);
+    sprite_set(swing3);
 +15:
     loop {
-        ins_1(idle1);
+        sprite_set(idle1);
 +8:
-        ins_1(idle2);
+        sprite_set(idle2);
 +8:
-        ins_1(idle3);
+        sprite_set(idle3);
 +8:
     }
 }
 
 script 64 script5 {
-    ins_1(bullet);
-    ins_31(true);
+    sprite_set(bullet);
+    anm_flag_disable_z_write(true);
 +10000: // 10000
-    ins_15();
+    anm_static();
 }
 
 
 script 65 script6 {
-    ins_10(0.0, 0.0, -0.15);
-    ins_2(1.5, 1.5);
-    ins_3(0x60);
-    ins_1(sprite65);
-    ins_31(true);
+    rotation_speed(0.0, 0.0, -0.15);
+    scale(1.5, 1.5);
+    alpha(0x60);
+    sprite_set(sprite65);
+    anm_flag_disable_z_write(true);
 +10000: // 10000
-    ins_15();
+    anm_static();
 }
 
 
 script 66 script7 {
-    ins_3(0xa0);
-    ins_1(sprite68);
-    ins_26(1);
-    ins_31(true);
+    alpha(0xa0);
+    sprite_set(sprite68);
+    __rotate_auto(1);
+    anm_flag_disable_z_write(true);
 +10000: // 10000
-    ins_15();
+    anm_static();
 }
 
 
 script 96 script8 {
-    ins_13();
-    ins_2(1.5, 1.5);
-    ins_1(sprite66);
-    ins_3(0x60);
-    ins_12(0x0, 30);
-    ins_11(0.023333333, 0.023333333);
-    ins_31(true);
+    blend_mode_additive();
+    scale(1.5, 1.5);
+    sprite_set(sprite66);
+    alpha(0x60);
+    alpha_interp_linear(0x0, 30);
+    scale_speed(0.023333333, 0.023333333);
+    anm_flag_disable_z_write(true);
 +30: // 30
-    ins_0();
+    anm_delete();
 }
 
 
 script 97 script9 {
-    ins_13();
-    ins_2(1.5, 1.5);
-    ins_1(sprite67);
-    ins_3(0x48);
-    ins_12(0x0, 30);
-    ins_11(0.023333333, 0.023333333);
-    ins_31(true);
+    blend_mode_additive();
+    scale(1.5, 1.5);
+    sprite_set(sprite67);
+    alpha(0x48);
+    alpha_interp_linear(0x0, 30);
+    scale_speed(0.023333333, 0.023333333);
+    anm_flag_disable_z_write(true);
 +30: // 30
-    ins_0();
+    anm_delete();
 }
 
 
 script 98 script10 {
-    ins_3(0x40);
-    ins_12(0x0, 20);
-    ins_13();
-    ins_1(sprite68);
-    ins_26(1);
-    ins_30(0.1, 6.0, 20);
-    ins_31(true);
+    alpha(0x40);
+    alpha_interp_linear(0x0, 20);
+    blend_mode_additive();
+    sprite_set(sprite68);
+    __rotate_auto(1);
+    scale_interp_linear(0.1, 6.0, 20);
+    anm_flag_disable_z_write(true);
 +20: // 20
-    ins_15();
+    anm_static();
 }
 
 
 script 128 script11 {
-    ins_10(0.0, 0.0, 0.1);
+    rotation_speed(0.0, 0.0, 0.1);
     loop {
-        ins_1(sprite128);
+        sprite_set(sprite128);
 +10000: // 10000
     }
 }
 
 
 script 129 script12 {
-    ins_10(0.0, 0.0, -0.1);
+    rotation_speed(0.0, 0.0, -0.1);
     loop {
-        ins_1(sprite128);
+        sprite_set(sprite128);
 +10000: // 10000
     }
 }
 
 
 script 130 script13 {
-    ins_10(0.0, 0.0, 0.1);
+    rotation_speed(0.0, 0.0, 0.1);
     loop {
-        ins_1(sprite129);
+        sprite_set(sprite129);
 +10000: // 10000
     }
 }
 
 
 script 131 script14 {
-    ins_10(0.0, 0.0, -0.1);
+    rotation_speed(0.0, 0.0, -0.1);
     loop {
-        ins_1(sprite129);
+        sprite_set(sprite129);
 +10000: // 10000
     }
 }
 
 
 script 132 script15 {
-    ins_1(sprite130);
-    ins_15();
+    sprite_set(sprite130);
+    anm_static();
 }
 
 
 script 133 script16 {
-    ins_1(sprite131);
-    ins_31(true);
-    ins_13();
-    ins_4(0xff, 0x30, 0x30);
-    ins_25(true);
-    ins_17(0.0, 0.0, 0.0);
-    ins_3(0x80);
-    ins_2(0.0, 0.0);
-    ins_11(0.05, 0.05);
+    sprite_set(sprite131);
+    anm_flag_disable_z_write(true);
+    blend_mode_additive();
+    color(0xff, 0x30, 0x30);
+    position_mode(true);
+    move_position(0.0, 0.0, 0.0);
+    alpha(0x80);
+    scale(0.0, 0.0);
+    scale_speed(0.05, 0.05);
 +30: // 30
-    ins_20(16.0, 16.0, 0.0, 10);
+    move_position_interp_decelerate_fast(16.0, 16.0, 0.0, 10);
 +30: // 60
-    ins_11(0.0, 0.0);
+    scale_speed(0.0, 0.0);
 +10: // 70
     loop {
-        ins_20(-16.0, -8.0, 0.0, 10);
+        move_position_interp_decelerate_fast(-16.0, -8.0, 0.0, 10);
 +10: // 80
-        ins_20(0.0, -16.0, 0.0, 10);
+        move_position_interp_decelerate_fast(0.0, -16.0, 0.0, 10);
 +10: // 90
-        ins_20(8.0, 0.0, 0.0, 10);
+        move_position_interp_decelerate_fast(8.0, 0.0, 0.0, 10);
 +10: // 100
-        ins_20(-16.0, 16.0, 0.0, 10);
+        move_position_interp_decelerate_fast(-16.0, 16.0, 0.0, 10);
 +10: // 110
-        ins_20(-8.0, 8.0, 0.0, 10);
+        move_position_interp_decelerate_fast(-8.0, 8.0, 0.0, 10);
     }
 
 interrupt[1]:
-    ins_12(0x0, 30);
+    alpha_interp_linear(0x0, 30);
 +10: // 120
-    ins_20(-16.0, -8.0, 0.0, 10);
+    move_position_interp_decelerate_fast(-16.0, -8.0, 0.0, 10);
 +10: // 130
-    ins_20(0.0, -16.0, 0.0, 10);
-    ins_0();
+    move_position_interp_decelerate_fast(0.0, -16.0, 0.0, 10);
+    anm_delete();
 }
 
 
 script 134 script17 {
-    ins_1(sprite131);
-    ins_31(true);
-    ins_13();
-    ins_4(0xff, 0xff, 0x30);
-    ins_25(true);
-    ins_17(0.0, 0.0, 0.0);
-    ins_3(0x80);
-    ins_2(0.0, 0.0);
+    sprite_set(sprite131);
+    anm_flag_disable_z_write(true);
+    blend_mode_additive();
+    color(0xff, 0xff, 0x30);
+    position_mode(true);
+    move_position(0.0, 0.0, 0.0);
+    alpha(0x80);
+    scale(0.0, 0.0);
 +8: // 8
-    ins_11(0.05, 0.05);
+    scale_speed(0.05, 0.05);
 +30: // 38
-    ins_20(-16.0, 16.0, 0.0, 10);
+    move_position_interp_decelerate_fast(-16.0, 16.0, 0.0, 10);
 +30: // 68
-    ins_11(0.0, 0.0);
+    scale_speed(0.0, 0.0);
 +10: // 78
     loop {
-        ins_20(-8.0, 8.0, 0.0, 10);
+        move_position_interp_decelerate_fast(-8.0, 8.0, 0.0, 10);
 +10: // 88
-        ins_20(16.0, -16.0, 0.0, 10);
+        move_position_interp_decelerate_fast(16.0, -16.0, 0.0, 10);
 +10: // 98
-        ins_20(-8.0, 8.0, 0.0, 10);
+        move_position_interp_decelerate_fast(-8.0, 8.0, 0.0, 10);
 +10: // 108
-        ins_20(-16.0, -16.0, 0.0, 10);
+        move_position_interp_decelerate_fast(-16.0, -16.0, 0.0, 10);
 +10: // 118
-        ins_20(8.0, -8.0, 0.0, 10);
+        move_position_interp_decelerate_fast(8.0, -8.0, 0.0, 10);
     }
 
 interrupt[1]:
-    ins_12(0x0, 30);
+    alpha_interp_linear(0x0, 30);
 +10: // 128
-    ins_20(-8.0, 8.0, 0.0, 10);
+    move_position_interp_decelerate_fast(-8.0, 8.0, 0.0, 10);
 +10: // 138
-    ins_20(16.0, -16.0, 0.0, 10);
-    ins_0();
+    move_position_interp_decelerate_fast(16.0, -16.0, 0.0, 10);
+    anm_delete();
 }
 
 
 script 135 script18 {
-    ins_1(sprite131);
-    ins_31(true);
-    ins_13();
-    ins_4(0x30, 0xff, 0x30);
-    ins_25(true);
-    ins_17(0.0, 0.0, 0.0);
-    ins_3(0x80);
-    ins_2(0.0, 0.0);
+    sprite_set(sprite131);
+    anm_flag_disable_z_write(true);
+    blend_mode_additive();
+    color(0x30, 0xff, 0x30);
+    position_mode(true);
+    move_position(0.0, 0.0, 0.0);
+    alpha(0x80);
+    scale(0.0, 0.0);
 +8: // 8
-    ins_11(0.05, 0.05);
+    scale_speed(0.05, 0.05);
 +30: // 38
-    ins_20(0.0, -8.0, 0.0, 10);
+    move_position_interp_decelerate_fast(0.0, -8.0, 0.0, 10);
 +30: // 68
-    ins_11(0.0, 0.0);
+    scale_speed(0.0, 0.0);
 +10: // 78
     loop {
-        ins_20(-8.0, 16.0, 0.0, 10);
+        move_position_interp_decelerate_fast(-8.0, 16.0, 0.0, 10);
 +10: // 88
-        ins_20(8.0, 0.0, 10.0, 0);
+        move_position_interp_decelerate_fast(8.0, 0.0, 10.0, 0);
 +10: // 98
-        ins_20(16.0, 16.0, 0.0, 10);
+        move_position_interp_decelerate_fast(16.0, 16.0, 0.0, 10);
 +10: // 108
-        ins_20(16.0, 16.0, 0.0, 10);
+        move_position_interp_decelerate_fast(16.0, 16.0, 0.0, 10);
 +10: // 118
-        ins_20(0.0, -16.0, 0.0, 10);
+        move_position_interp_decelerate_fast(0.0, -16.0, 0.0, 10);
     }
 
 interrupt[1]:
-    ins_12(0x0, 30);
+    alpha_interp_linear(0x0, 30);
 +10: // 128
-    ins_20(-8.0, 16.0, 0.0, 10);
+    move_position_interp_decelerate_fast(-8.0, 16.0, 0.0, 10);
 +10: // 138
-    ins_20(8.0, 0.0, 10.0, 0);
-    ins_0();
+    move_position_interp_decelerate_fast(8.0, 0.0, 10.0, 0);
+    anm_delete();
 }
 
 
 script 136 script19 {
-    ins_1(sprite131);
-    ins_31(true);
-    ins_13();
-    ins_4(0x30, 0x30, 0xff);
-    ins_25(true);
-    ins_17(0.0, 0.0, 0.0);
-    ins_3(0x80);
+    sprite_set(sprite131);
+    anm_flag_disable_z_write(true);
+    blend_mode_additive();
+    color(0x30, 0x30, 0xff);
+    position_mode(true);
+    move_position(0.0, 0.0, 0.0);
+    alpha(0x80);
 +24: // 24
-    ins_2(0.0, 0.0);
-    ins_11(0.05, 0.05);
+    scale(0.0, 0.0);
+    scale_speed(0.05, 0.05);
 +30: // 54
-    ins_20(0.0, 0.0, 0.0, 30);
+    move_position_interp_decelerate_fast(0.0, 0.0, 0.0, 30);
 +30: // 84
-    ins_11(0.0, 0.0);
+    scale_speed(0.0, 0.0);
 +10: // 94
     loop {
-        ins_20(8.0, -8.0, 0.0, 10);
+        move_position_interp_decelerate_fast(8.0, -8.0, 0.0, 10);
 +10: // 104
-        ins_20(-16.0, -8.0, 0.0, 10);
+        move_position_interp_decelerate_fast(-16.0, -8.0, 0.0, 10);
 +10: // 114
-        ins_20(-8.0, 16.0, 0.0, 10);
+        move_position_interp_decelerate_fast(-8.0, 16.0, 0.0, 10);
 +10: // 124
-        ins_20(8.0, -16.0, 0.0, 10);
+        move_position_interp_decelerate_fast(8.0, -16.0, 0.0, 10);
 +10: // 134
-        ins_20(-8.0, 8.0, 0.0, 10);
+        move_position_interp_decelerate_fast(-8.0, 8.0, 0.0, 10);
     }
 
 interrupt[1]:
-    ins_12(0x0, 30);
+    alpha_interp_linear(0x0, 30);
 +10: // 144
-    ins_20(8.0, -8.0, 0.0, 10);
+    move_position_interp_decelerate_fast(8.0, -8.0, 0.0, 10);
 +10: // 154
-    ins_20(-16.0, -8.0, 0.0, 10);
-    ins_0();
+    move_position_interp_decelerate_fast(-16.0, -8.0, 0.0, 10);
+    anm_delete();
 }
 
 
 script 137 script20 {
-    ins_1(sprite132);
-    ins_31(true);
-    ins_13();
-    ins_4(0x90, 0x90, 0xff);
-    ins_2(3.0, 7.225806);
-    ins_3(0x0);
-    ins_12(0xff, 60);
+    sprite_set(sprite132);
+    anm_flag_disable_z_write(true);
+    blend_mode_additive();
+    color(0x90, 0x90, 0xff);
+    scale(3.0, 7.225806);
+    alpha(0x0);
+    alpha_interp_linear(0xff, 60);
 +60: // 60
-    ins_25(true);
-    ins_17(0.0, 0.0, 0.0);
-    ins_20(-192.0, 0.0, 0.0, 120);
+    position_mode(true);
+    move_position(0.0, 0.0, 0.0);
+    move_position_interp_decelerate_fast(-192.0, 0.0, 0.0, 120);
 +60: // 120
-    ins_12(0x0, 60);
+    alpha_interp_linear(0x0, 60);
 +60: // 180
-    ins_0();
+    anm_delete();
 }
 
 
 script 138 script21 {
-    ins_1(sprite132);
-    ins_31(true);
-    ins_9(0.0, 0.0, -1.5707964);
-    ins_13();
-    ins_4(0xff, 0x90, 0x90);
-    ins_2(3.0, 7.225806);
-    ins_3(0x0);
-    ins_12(0xff, 60);
+    sprite_set(sprite132);
+    anm_flag_disable_z_write(true);
+    rotation(0.0, 0.0, -1.5707964);
+    blend_mode_additive();
+    color(0xff, 0x90, 0x90);
+    scale(3.0, 7.225806);
+    alpha(0x0);
+    alpha_interp_linear(0xff, 60);
 +60: // 60
-    ins_25(true);
-    ins_17(0.0, 0.0, 0.0);
-    ins_20(0.0, -320.0, 0.0, 120);
+    position_mode(true);
+    move_position(0.0, 0.0, 0.0);
+    move_position_interp_decelerate_fast(0.0, -320.0, 0.0, 120);
 +60: // 120
-    ins_12(0x0, 60);
+    alpha_interp_linear(0x0, 60);
 +60: // 180
-    ins_0();
+    anm_delete();
 }
 
 
 script 139 script22 {
-    ins_1(sprite132);
-    ins_31(true);
-    ins_9(0.0, 0.0, 3.1415927);
-    ins_13();
-    ins_4(0x90, 0x90, 0xff);
-    ins_2(3.0, 7.225806);
-    ins_3(0x0);
-    ins_12(0xff, 60);
+    sprite_set(sprite132);
+    anm_flag_disable_z_write(true);
+    rotation(0.0, 0.0, 3.1415927);
+    blend_mode_additive();
+    color(0x90, 0x90, 0xff);
+    scale(3.0, 7.225806);
+    alpha(0x0);
+    alpha_interp_linear(0xff, 60);
 +60: // 60
-    ins_25(true);
-    ins_17(0.0, 0.0, 0.0);
-    ins_20(192.0, 0.0, 0.0, 120);
+    position_mode(true);
+    move_position(0.0, 0.0, 0.0);
+    move_position_interp_decelerate_fast(192.0, 0.0, 0.0, 120);
 +60: // 120
-    ins_12(0x0, 60);
+    alpha_interp_linear(0x0, 60);
 +60: // 180
-    ins_0();
+    anm_delete();
 }
 
 
 script 140 script23 {
-    ins_1(sprite132);
-    ins_31(true);
-    ins_9(0.0, 0.0, 1.5707964);
-    ins_13();
-    ins_4(0xff, 0x90, 0x90);
-    ins_2(3.0, 7.225806);
-    ins_3(0x0);
-    ins_12(0xff, 60);
+    sprite_set(sprite132);
+    anm_flag_disable_z_write(true);
+    rotation(0.0, 0.0, 1.5707964);
+    blend_mode_additive();
+    color(0xff, 0x90, 0x90);
+    scale(3.0, 7.225806);
+    alpha(0x0);
+    alpha_interp_linear(0xff, 60);
 +60: // 60
-    ins_25(true);
-    ins_17(0.0, 0.0, 0.0);
-    ins_20(0.0, 320.0, 0.0, 120);
+    position_mode(true);
+    move_position(0.0, 0.0, 0.0);
+    move_position_interp_decelerate_fast(0.0, 320.0, 0.0, 120);
 +60: // 120
-    ins_12(0x0, 60);
+    alpha_interp_linear(0x0, 60);
 +60: // 180
-    ins_0();
+    anm_delete();
 }

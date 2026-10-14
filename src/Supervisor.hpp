@@ -108,7 +108,7 @@ struct Supervisor
     static ZunResult DeletedCallback(Supervisor *s);
     static void DrawFpsCounter();
 
-    bool ReadMidiFile(u32 midiFileIdx, const char *path);
+    bool ReadMidiFile(u32 midiFileIdx, const char *path, bool canReplaceWithPoyo = false);
     ZunResult PlayMidiFile(i32 midiFileIdx);
     ZunResult PlayAudio(const char *path, bool canReplaceWithPoyo = false);
     ZunResult StopAudio();

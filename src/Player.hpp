@@ -68,6 +68,15 @@ enum BulletState
     BULLET_STATE_FIRED,
     BULLET_STATE_COLLIDED,
 };
+
+enum BulletFireType
+{
+    // fires on its own every waitBetweenBullets frames while shoot is held
+    BULLET_FIRE_TYPE_CONTINUOUS,
+    // fires once per press of shoot, then can't fire again for waitBetweenBullets frames
+    BULLET_FIRE_TYPE_SINGLE
+};
+
 struct PlayerRect
 {
     f32 posX;
@@ -146,6 +155,7 @@ struct CharacterPowerBulletData
     u8 bulletType;
     i16 anmFileIdx;
     i16 bulletSoundIdx;
+    BulletFireType fireType;
 };
 
 struct CharacterPowerData
@@ -175,6 +185,7 @@ struct Player
     static FireBulletResult FireBulletMarisaA(Player *, PlayerBullet *, u32, u32);
     static FireBulletResult FireBulletMarisaB(Player *, PlayerBullet *, u32, u32);
     static FireBulletResult FireBulletPoyo(Player *, PlayerBullet *, u32, u32);
+    static FireBulletResult FirePoyoBomb(Player *);
 
     static void StartFireBulletTimer(Player *);
     ZunResult HandlePlayerInputs();
@@ -213,6 +224,10 @@ struct Player
     ZunVec3 reflectionBottomRight;
     ZunTimer reflectionTimer;
     ZunTimer reflectionActiveTimer;
+    // frames left before a BULLET_FIRE_TYPE_SINGLE shot can fire again
+    i32 singleShotCooldown;
+    // shoot was pressed this frame while single shots were off cooldown
+    bool singleShotQueued;
     ZunVec3 orbsPosition[2];
     ZunVec3 bombRegionPositions[32];
     ZunVec3 bombRegionSizes[32];

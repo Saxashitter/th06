@@ -1,0 +1,3 @@
+# Loop times in milliseconds; decimals are allowed and loop end is exclusive.
+44991.496599
+111391.609977

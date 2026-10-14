@@ -110,7 +110,7 @@ ZunResult Player::AddedCallback(Player *p)
     p->positionCenter.y = g_GameManager.arcadeRegionSize.y - 64.0f;
     p->positionCenter.z = 0.49;
     p->reflectionOffset.x = 0;
-    p->reflectionOffset.y = -18;
+    p->reflectionOffset.y = -30;
     p->reflectionOffset.z = 0;
     p->orbsPosition[0].z = 0.49;
     p->orbsPosition[1].z = 0.49;
@@ -124,8 +124,8 @@ ZunResult Player::AddedCallback(Player *p)
     p->grabItemSize.x = 12.0;
     p->grabItemSize.y = 12.0;
     p->grabItemSize.z = 5.0;
-    p->reflectionSize.x = 15;
-    p->reflectionSize.y = 10;
+    p->reflectionSize.x = 25;
+    p->reflectionSize.y = 20;
     p->reflectionSize.z = 5.0;
     p->playerDirection = MOVEMENT_NONE;
     std::memcpy(&p->characterData, &g_CharData[g_GameManager.CharacterShotType()], sizeof(CharacterData));
@@ -146,6 +146,8 @@ ZunResult Player::AddedCallback(Player *p)
         curBullet->bulletState = 0;
     }
     p->fireBulletTimer.SetCurrent(-1);
+    p->singleShotCooldown = 0;
+    p->singleShotQueued = false;
     p->bombInfo.calc = g_BombData[g_GameManager.CharacterShotType()].calc;
     p->bombInfo.draw = g_BombData[g_GameManager.CharacterShotType()].draw;
     p->bombInfo.isInUse = 0;
@@ -195,13 +197,18 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     {
         if (g_GameManager.character == CHARA_POYO)
         {
+            // shot type a: baseball bat and ak47
             if (p->reflectionTimer.AsFrames() <= 0)
             {
                 g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_POYO_SWING);
+                g_SoundPlayer.PlaySoundByIdx(SOUND_POYO_BAT_ATTACK);
                 p->reflectionTimer.SetCurrent(23);
                 p->reflectionActiveTimer.SetCurrent(6);
                 p->fireBulletTimer.SetCurrent(-1);
             }
+
+            // shot  type b: main shot as pistol and secondary shot as shotgun
+            // Player::FirePoyoBomb(p);
         }
         else
         {
@@ -362,6 +369,10 @@ ChainCallbackResult Player::OnUpdate(Player *p)
         if (p->reflectionTimer.AsFrames() <= 0)
             p->reflectionTimer.SetCurrent(0);
     }
+    if (p->singleShotCooldown > 0)
+    {
+        p->singleShotCooldown--;
+    }
     if (p->reflectionActiveTimer.AsFrames() > 0) {
         p->reflectionActiveTimer.Decrement(1);
 
@@ -380,6 +391,7 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     lastEnemyHit.z = 0.0;
     p->positionOfLastEnemyHit = lastEnemyHit;
     Player::UpdateFireBulletsTimer(p);
+    p->singleShotQueued = false;
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
@@ -1011,6 +1023,10 @@ ZunResult Player::HandlePlayerInputs()
     if (IS_PRESSED(TH_BUTTON_SHOOT) && !g_Gui.HasCurrentMsgIdx() && this->reflectionTimer.AsFrames() <= 0)
     {
         this->StartFireBulletTimer(this);
+        if (WAS_PRESSED(TH_BUTTON_SHOOT) && this->singleShotCooldown <= 0)
+        {
+            this->singleShotQueued = true;
+        }
     }
     this->previousFrameInput = g_CurFrameInput;
     return ZUN_SUCCESS;
@@ -1198,10 +1214,18 @@ FireBulletResult Player::FireSingleBullet(Player *player, PlayerBullet *bullet, 
             goto SHOOT_BULLET;
         }
     }
+    else if (bulletData->fireType == BULLET_FIRE_TYPE_SINGLE)
+    {
+        if (player->singleShotQueued)
+        {
+            // every single shot bullet of this power level still fires on this press
+            player->singleShotCooldown = bulletData->waitBetweenBullets;
+            goto SHOOT_BULLET;
+        }
+    }
     else if (framesSinceLastBullet % bulletData->waitBetweenBullets == bulletData->bulletFrame)
     {
     SHOOT_BULLET:
-
         g_AnmManager->SetAndExecuteScriptIdx(&bullet->sprite, bulletData->anmFileIdx);
         if (!bulletData->spawnPositionIdx)
         {
@@ -1278,6 +1302,42 @@ FireBulletResult Player::FireBulletPoyo(Player *player, PlayerBullet *bullet, u3
                                            u32 framesSinceLastBullet)
 {
     return player->FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataPoyo);
+}
+
+// Poyo's bomb/secondary shot: fires the five-bullet spread table directly, bypassing the
+// main-shot fireBulletTimer so it doesn't interfere with the pistol cadence.
+FireBulletResult Player::FirePoyoBomb(Player *player)
+{
+    // FireSingleBullet walks this array by power, so a single entry gated at max power
+    // points it at the spread table regardless of current power.
+    const CharacterPowerData powerData = {ARRAY_SIZE_SIGNED(g_CharacterPowerBulletDataPoyoBomb), 999,
+                                          g_CharacterPowerBulletDataPoyoBomb};
+    PlayerBullet *curBullet;
+    i32 curBulletIdx;
+    u32 bulletDataIdx;
+
+    bulletDataIdx = 0;
+    // the spread entries are BULLET_FIRE_TYPE_SINGLE; pretend shoot was queued so they fire now
+    bool singleShotWasQueued = player->singleShotQueued;
+    i32 cooldownBefore = player->singleShotCooldown;
+    player->singleShotQueued = true;
+    for (curBulletIdx = 0; curBulletIdx < ARRAY_SIZE_SIGNED(player->bullets); curBulletIdx++)
+    {
+        curBullet = &player->bullets[curBulletIdx];
+        if (curBullet->bulletState != BULLET_STATE_UNUSED)
+        {
+            continue;
+        }
+        if (bulletDataIdx >= ARRAY_SIZE_SIGNED(g_CharacterPowerBulletDataPoyoBomb))
+        {
+            break;
+        }
+        player->FireSingleBullet(player, curBullet, bulletDataIdx, 0, &powerData);
+        bulletDataIdx++;
+    }
+    player->singleShotQueued = singleShotWasQueued;
+    player->singleShotCooldown = cooldownBefore;
+    return 0;
 }
 
 i32 Player::CheckGraze(const ZunVec3 *center, const ZunVec3 *size) const
