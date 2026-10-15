@@ -26,9 +26,10 @@ struct EnemyManager
     static ChainCallbackResult OnDraw(EnemyManager *enemyManager);
     static ZunResult AddedCallback(EnemyManager *enemyManager);
     static ZunResult DeletedCallback(EnemyManager *enemyManager);
-
+    
     void RunEclTimeline();
     Enemy *SpawnEnemy(i32 eclSubId, const ZunVec3 *pos, i16 life, i16 itemDrop, i32 score);
+    Enemy *ReturnClosestEnemyOrBoss(const ZunVec3 *pos);
 
     const char *stgEnmAnmFilename;
     const char *stgEnm2AnmFilename;

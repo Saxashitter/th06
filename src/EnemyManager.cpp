@@ -925,6 +925,57 @@ ZunResult EnemyManager::DeletedCallback(EnemyManager *mgr)
     return ZUN_SUCCESS;
 }
 
+// used for poyo so we can reflect his bullets to the nearest boss
+Enemy *EnemyManager::ReturnClosestEnemyOrBoss(const ZunVec3 *pos)
+{
+    const f32 px = pos->x;
+    const f32 py = pos->y;
+    Enemy *closest = NULL;
+    f32 bestDist = 3.4e38f; // FLT_MAX-ish, compared as squared distance (no sqrt needed)
+
+    // bosses have priority: if any boss is active, only they are considered
+    for (i32 i = 0; i < ARRAY_SIZE_SIGNED(this->bosses); i++)
+    {
+        Enemy *boss = this->bosses[i];
+        if (boss == NULL || !boss->flags.active)
+            continue;
+		if (boss->position.y > py)
+			continue;
+
+        f32 dx = boss->position.x - px;
+        f32 dy = boss->position.y - py;
+        f32 d = dx * dx + dy * dy;
+        if (d < bestDist)
+        {
+            bestDist = d;
+            closest = boss;
+        }
+    }
+    if (closest != NULL)
+        return closest;
+
+    Enemy *enemy = this->enemies;
+    for (i32 i = 0; i < ARRAY_SIZE_SIGNED(this->enemies) - 1; i++, enemy++)
+    {
+        if (!enemy->flags.active)
+            continue;
+		if (enemy->position.y > py)
+			continue;
+
+        f32 dx = enemy->position.x - px;
+        f32 dy = enemy->position.y - py;
+        f32 d = dx * dx + dy * dy;
+        if (d < bestDist)
+        {
+            bestDist = d;
+            closest = enemy;
+        }
+    }
+
+    // keep the old fallback so existing callers don't get a NULL they aren't expecting
+    return closest != NULL ? closest : this->enemies;
+}
+
 void EnemyManager::CutChain()
 {
     g_Chain.Cut(&g_EnemyManagerCalcChain);

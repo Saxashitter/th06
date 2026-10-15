@@ -525,7 +525,7 @@ i32 Player::CalcDamageToEnemy(const ZunVec3 *enemyPos, const ZunVec3 *enemyHitbo
         // count melee damage too
         if (this->CalcReflectionCollision(enemyPos, enemyHitboxSize) == 1)
         {
-            damage += 80;
+            damage += 240;
         }
 
     }
@@ -1316,10 +1316,13 @@ FireBulletResult Player::FirePoyoBomb(Player *player)
     i32 curBulletIdx;
     u32 bulletDataIdx;
 
+    if (player->singleShotCooldown > 0)
+        return 0; // we need to let this wear off first
+
     bulletDataIdx = 0;
     // the spread entries are BULLET_FIRE_TYPE_SINGLE; pretend shoot was queued so they fire now
     bool singleShotWasQueued = player->singleShotQueued;
-    i32 cooldownBefore = player->singleShotCooldown;
+
     player->singleShotQueued = true;
     for (curBulletIdx = 0; curBulletIdx < ARRAY_SIZE_SIGNED(player->bullets); curBulletIdx++)
     {
@@ -1332,11 +1335,23 @@ FireBulletResult Player::FirePoyoBomb(Player *player)
         {
             break;
         }
-        player->FireSingleBullet(player, curBullet, bulletDataIdx, 0, &powerData);
-        bulletDataIdx++;
+        utils::DebugPrint2("Running FireSingleBullet...");
+        FireBulletResult result = player->FireSingleBullet(player, curBullet, bulletDataIdx, 0, &powerData);
+        if (result >= 0)
+        {
+            curBullet->sprite.pos.x = curBullet->position.x;
+            curBullet->sprite.pos.y = curBullet->position.y;
+            curBullet->sprite.pos.z = 0.495;
+            curBullet->bulletState = BULLET_STATE_FIRED;
+            bulletDataIdx++;
+        }
+        if (result > 0 || result == FBR_STOP_SPAWNING)
+        {
+            break;
+        }
     }
     player->singleShotQueued = singleShotWasQueued;
-    player->singleShotCooldown = cooldownBefore;
+    player->singleShotCooldown = 30;
     return 0;
 }
 

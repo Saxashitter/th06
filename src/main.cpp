@@ -15,10 +15,25 @@
 #include "i18n.hpp"
 #include "utils.hpp"
 
+#include <windows.h>
+#include <cstdio>
+
+static void AttachParentConsole()
+{
+    if (AttachConsole(ATTACH_PARENT_PROCESS))
+    {
+        std::freopen("CONOUT$", "w", stdout);
+        std::freopen("CONOUT$", "w", stderr);
+        std::setvbuf(stdout, nullptr, _IONBF, 0); // unbuffered
+    }
+}
+
 int main(int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
+
+    AttachParentConsole();
 
     i32 renderResult = 0;
     //    MSG msg;

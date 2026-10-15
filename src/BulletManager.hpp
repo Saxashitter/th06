@@ -58,6 +58,9 @@ struct Bullet
     u16 unk_5c0;
     u8 unk_5c2;
     u8 isGrazed;
+
+    // we need this for the reflect
+    f32 AngleFromBullet(const ZunVec3 *pos) const;
 };
 
 struct Laser

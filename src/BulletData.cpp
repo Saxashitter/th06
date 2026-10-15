@@ -1728,15 +1728,18 @@ extern const CharacterPowerData g_CharacterPowerDataPoyo[9] = {
 };
 
 /* Poyo bomb button secondary: five-bullet spread */
+// damage is 48
+// lets increase it so its actually worth something
+// 128 damage / 5c
 extern const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoBomb[5] = {
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 48, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 70, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-95.0), 12.0, 48, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-95.0), 12.0, 70, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-85.0), 12.0, 48, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-85.0), 12.0, 70, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-100.0), 12.0, 48, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-100.0), 12.0, 70, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-80.0), 12.0, 48, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-80.0), 12.0, 70, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
 };

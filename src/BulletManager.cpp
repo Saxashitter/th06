@@ -6,6 +6,7 @@
 #include "EffectManager.hpp"
 #include "Enemy.hpp"
 #include "GameManager.hpp"
+#include "EnemyManager.hpp"
 #include "Gui.hpp"
 #include "ItemManager.hpp"
 #include "Player.hpp"
@@ -376,7 +377,7 @@ u32 BulletManager::SpawnSingleBullet(const EnemyBulletShooter *bulletProps, i32 
 }
 
 // Damage each bullet sent back by poyo's bat deals when it runs into an enemy.
-#define POYO_REFLECTED_BULLET_DAMAGE 20
+#define POYO_REFLECTED_BULLET_DAMAGE 70
 
 i32 BulletManager::CalcReflectedBulletDamage(const ZunVec3 *enemyPos, const ZunVec3 *enemyHitboxSize)
 {
@@ -945,10 +946,24 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
             {  
                 if (curBullet->isReflected != 1)
                 {
-                    curBullet->velocity.x *= -1;
-                    curBullet->velocity.y *= -1;
-                    curBullet->isReflected = 1;
-                    curBullet->angle += RADIANS(180);
+					curBullet->isReflected = 1;
+	
+					f32 speed;
+					speed = (curBullet->velocity.x * curBullet->velocity.x)
+						  + (curBullet->velocity.y * curBullet->velocity.y);
+
+					Enemy *closest;
+               		closest = g_EnemyManager.ReturnClosestEnemyOrBoss(&curBullet->pos);
+
+					f32 angle;
+					angle = curBullet->AngleFromBullet(&closest->position);
+
+					curBullet->angle = angle;
+					curBullet->velocity.x = (speed * ZUN_COSF(angle)) * 1.25f;
+					curBullet->velocity.y = (speed * ZUN_SINF(angle)) * 1.25f;
+                    // curBullet->velocity.x *= -1;
+                    // curBullet->velocity.y *= -1;
+                    // curBullet->angle += RADIANS(180);
                     g_SoundPlayer.PlaySoundByIdx(SOUND_POYO_BAT_HIT);
                 }
 
@@ -1483,4 +1498,22 @@ void BulletManager::CutChain()
 {
     g_Chain.Cut(&g_BulletManagerCalcChain);
     g_Chain.Cut(&g_BulletManagerDrawChain);
+}
+
+// haha from poyo
+f32 Bullet::AngleFromBullet(const ZunVec3 *pos) const
+{
+    f32 relX;
+    f32 relY;
+
+    // target - bullet
+   relX = pos->x - this->pos.x;
+   relY = pos->y - this->pos.y;
+
+    if (relY == 0.0f && relX == 0.0f)
+    {
+        return ZUN_PI / 2;
+    }
+
+    return ZUN_ATAN2F(relY, relX);
 }

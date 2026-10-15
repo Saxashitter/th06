@@ -1,7 +1,7 @@
-#ifdef DEBUG
+// #ifdef DEBUG
 #include <cstdarg>
 #include <cstdio>
-#endif
+// #endif
 
 #include "ZunMath.hpp"
 #include "i18n.hpp"
@@ -11,7 +11,7 @@ namespace utils
 {
 void DebugPrint(const char *fmt, ...)
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     char tmpBuffer[512];
     std::va_list args;
 
@@ -20,7 +20,7 @@ void DebugPrint(const char *fmt, ...)
     va_end(args);
 
     std::printf("DEBUG2: %s\n", tmpBuffer);
-#endif
+// #endif
 }
 
 f32 AddNormalizeAngle(f32 a, f32 b)
@@ -57,7 +57,7 @@ void Rotate(ZunVec3 *outVector, const ZunVec3 *point, f32 angle)
 
 void DebugPrint2(const char *fmt, ...)
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     char tmpBuffer[512];
     std::va_list args;
 
@@ -66,6 +66,6 @@ void DebugPrint2(const char *fmt, ...)
     va_end(args);
 
     std::printf("DEBUG2: %s\n", tmpBuffer);
-#endif
+// #endif
 }
 }; // namespace utils
