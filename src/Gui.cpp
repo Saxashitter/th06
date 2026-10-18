@@ -1163,6 +1163,43 @@ static const ZunColor COLOR2 = 0xa080ff;
 static const ZunColor COLOR3 = 0xe080c0;
 static const ZunColor COLOR4 = 0xff4040;
 
+static void DrawSolidRect(f32 x, f32 y, f32 width, f32 height, u32 colorTop, u32 colorBottom)
+{
+    VertexDiffuseXyzrhw vertices[4];
+
+    // triangle strip order: TL, TR, BL, BR
+    vertices[0].position = ZunVec4(x,         y,          0.0f, 1.0f);
+    vertices[1].position = ZunVec4(x + width, y,          0.0f, 1.0f);
+    vertices[2].position = ZunVec4(x,         y + height, 0.0f, 1.0f);
+    vertices[3].position = ZunVec4(x + width, y + height, 0.0f, 1.0f);
+
+    // 0xAARRGGBB; different top/bottom values give a vertical gradient
+    vertices[0].diffuse = vertices[1].diffuse = ColorData(colorTop);
+    vertices[2].diffuse = vertices[3].diffuse = ColorData(colorBottom);
+
+    g_AnmManager->FlushVertexBuffer(); // flush anything batched so draw order stays correct
+
+    g_AnmManager->SetColorOp(COMPONENT_ALPHA, COLOR_OP_REPLACE);
+    g_AnmManager->SetColorOp(COMPONENT_RGB, COLOR_OP_REPLACE);
+    g_AnmManager->SetDepthMask(false);
+
+    if (g_AnmManager->currentTextureHandle == 0)
+    {
+        g_AnmManager->SetCurrentTexture(g_AnmManager->dummyTextureHandle);
+    }
+
+    g_AnmManager->SetProjectionMode(PROJECTION_MODE_ORTHOGRAPHIC);
+    g_AnmManager->SetVertexAttributes(VERTEX_ATTR_DIFFUSE);
+    g_AnmManager->SetAttributePointer(VERTEX_ARRAY_POSITION, sizeof(*vertices), &vertices[0].position);
+    g_AnmManager->SetAttributePointer(VERTEX_ARRAY_DIFFUSE, sizeof(*vertices), &vertices[0].diffuse);
+    g_AnmManager->BackendDrawCall();
+
+    // restore state for whatever draws next
+    g_AnmManager->SetCurrentBlendMode(0xff);
+    g_AnmManager->SetColorOp(COMPONENT_ALPHA, COLOR_OP_MODULATE);
+    g_AnmManager->SetColorOp(COMPONENT_RGB, COLOR_OP_MODULATE);
+}
+
 void Gui::DrawGameScene()
 {
     AnmVm *vm;
@@ -1261,7 +1298,8 @@ void Gui::DrawGameScene()
         g_AnmManager->DrawNoRotation(&this->impl->vms[9]);
         g_AnmManager->DrawNoRotation(&this->impl->vms[10]);
         g_AnmManager->DrawNoRotation(&this->impl->vms[11]);
-        g_AnmManager->DrawNoRotation(&this->impl->vms[12]);
+        if (g_GameManager.character != CHARA_POYO)
+            g_AnmManager->DrawNoRotation(&this->impl->vms[12]);
         g_AnmManager->DrawNoRotation(&this->impl->vms[13]);
         g_AnmManager->DrawNoRotation(&this->impl->vms[14]);
         g_AnmManager->DrawNoRotation(&this->impl->vms[15]);
@@ -1321,10 +1359,20 @@ void Gui::DrawGameScene()
     if (this->flags.flag1 || ((g_Supervisor.cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1) != 0))
     {
         vm = &this->impl->vms[17];
-        for (idx = 0, xPos = 496.0f; idx < g_GameManager.bombsRemaining; idx++, xPos += 16.0f)
+        if (g_GameManager.character != CHARA_POYO)
         {
-            vm->pos = ZunVec3(xPos, 146.0f, 0.49f);
-            g_AnmManager->DrawNoRotation(vm);
+            for (idx = 0, xPos = 496.0f; idx < g_GameManager.bombsRemaining; idx++, xPos += 16.0f)
+            {
+                vm->pos = ZunVec3(xPos, 146.0f, 0.49f);
+                g_AnmManager->DrawNoRotation(vm);
+            }
+        }
+        else {
+            float scale = (1.0f * g_Player.poyoSideCooldown) / g_Player.poyoSideInitialCooldown;
+            utils::DebugPrint2("%f, %d, %d", scale, g_Player.poyoSideCooldown, g_Player.poyoSideInitialCooldown);
+    
+            // Draw the damn thingamajig
+            DrawSolidRect(496.0f, 146.0f, 32.0f * scale, 8.0f, 0x80e0e0ff, 0x40e0e0ff);
         }
     }
     if (this->flags.flag2 || ((g_Supervisor.cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1) != 0))

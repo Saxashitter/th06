@@ -949,8 +949,8 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
 					curBullet->isReflected = 1;
 	
 					f32 speed;
-					speed = (curBullet->velocity.x * curBullet->velocity.x)
-						  + (curBullet->velocity.y * curBullet->velocity.y);
+					speed = ZUN_SQRTF((curBullet->velocity.x * curBullet->velocity.x)
+						  + (curBullet->velocity.y * curBullet->velocity.y));
 
 					Enemy *closest;
                		closest = g_EnemyManager.ReturnClosestEnemyOrBoss(&curBullet->pos);

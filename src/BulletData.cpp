@@ -1672,48 +1672,48 @@ extern const CharacterPowerData g_CharacterPowerDataMarisaB[9] = {
 
 /* Poyo Rank 1 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank1[1] = {
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 48, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 48, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+     SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 2 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank2[1] = {
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 53, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 53, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+     SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 3 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank3[1] = {
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 65, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 65, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+     SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 4 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank4[1] = {
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 75, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 75, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+     SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 5 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank5[1] = {
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 78, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 78, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+     SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 6 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank6[1] = {
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 80, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 80, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+     SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 7 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank7[1] = {
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 80, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 80, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+     SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 8 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank8[1] = {
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 86, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 86, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+     SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 9 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank9[1] = {
-    {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 93, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 93, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+     SOUND_POYO_SHOOT},
 };
 extern const CharacterPowerData g_CharacterPowerDataPoyo[9] = {
     /* Rank1   */ {1, 8, g_CharacterPowerBulletDataPoyoRank1},
@@ -1733,13 +1733,13 @@ extern const CharacterPowerData g_CharacterPowerDataPoyo[9] = {
 // 128 damage / 5c
 extern const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoBomb[5] = {
     {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 70, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+     SOUND_POYO_SHOTGUN, BULLET_FIRE_TYPE_SINGLE},
     {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-95.0), 12.0, 70, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+     SOUND_POYO_SHOTGUN, BULLET_FIRE_TYPE_SINGLE},
     {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-85.0), 12.0, 70, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+     SOUND_POYO_SHOTGUN, BULLET_FIRE_TYPE_SINGLE},
     {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-100.0), 12.0, 70, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+     SOUND_POYO_SHOTGUN, BULLET_FIRE_TYPE_SINGLE},
     {5, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-80.0), 12.0, 70, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
-     SOUND_POYO_SHOOT, BULLET_FIRE_TYPE_SINGLE},
+     SOUND_POYO_SHOTGUN, BULLET_FIRE_TYPE_SINGLE},
 };

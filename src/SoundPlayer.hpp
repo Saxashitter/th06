@@ -45,7 +45,8 @@ enum SoundIdx
     SOUND_POWERUP = 31,
     SOUND_POYO_SHOOT = 32,
     SOUND_POYO_BAT_ATTACK = 33,
-    SOUND_POYO_BAT_HIT = 34
+    SOUND_POYO_BAT_HIT = 34,
+    SOUND_POYO_SHOTGUN = 35
 };
 
 struct SoundBufferIdxVolume

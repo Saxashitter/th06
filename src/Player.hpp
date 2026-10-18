@@ -222,10 +222,9 @@ struct Player
     ZunVec3 reflectionOffset;
     ZunVec3 reflectionTopLeft;
     ZunVec3 reflectionBottomRight;
-    ZunTimer reflectionTimer;
     ZunTimer reflectionActiveTimer;
-    // frames left before a BULLET_FIRE_TYPE_SINGLE shot can fire again
-    i32 singleShotCooldown;
+    i32 poyoSideCooldown;
+    i32 poyoSideInitialCooldown; // for poyos shotgun and baseball bat
     // shoot was pressed this frame while single shots were off cooldown
     bool singleShotQueued;
     ZunVec3 orbsPosition[2];

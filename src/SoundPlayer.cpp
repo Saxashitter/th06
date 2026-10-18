@@ -28,22 +28,25 @@
 //   The scale is from 0 (no volume modification) to -10,000 (subtraction of 100 decibels, and basically silent).
 //   20 decibels affects wave amplitude by a factor of 10
 
-static const SoundBufferIdxVolume g_SoundBufferIdxVol[36] = {
+static const SoundBufferIdxVolume g_SoundBufferIdxVol[37] = {
     {0, -1500}, {0, -2000}, {1, -1200}, {1, -1400}, {2, -1000},  {3, -500},   {4, -500},   {5, -1700},
     {6, -1700}, {7, -1700}, {8, -1000}, {9, -1000}, {10, -1900}, {11, -1200}, {12, -900},  {5, -1500},
     {13, -900}, {14, -900}, {15, -600}, {16, -400}, {17, -1100}, {18, -900},  {5, -1800},  {6, -1800},
     {7, -1800}, {19, -300}, {20, -600}, {21, -800}, {22, -100},  {23, -500},  {24, -1000}, {25, -1000},
-    {26, -1000}, {27, -1000}, {28, -1000}
+    {26, -1000}, {27, -1000}, {28, -1000}, {29, -100}
 };
-static const char *const g_SFXList[29] = {
+static const char *const g_SFXList[30] = {
     "data/wav/plst00.wav", "data/wav/enep00.wav",   "data/wav/pldead00.wav", "data/wav/power0.wav",
     "data/wav/power1.wav", "data/wav/tan00.wav",    "data/wav/tan01.wav",    "data/wav/tan02.wav",
     "data/wav/ok00.wav",   "data/wav/cancel00.wav", "data/wav/select00.wav", "data/wav/gun00.wav",
     "data/wav/cat00.wav",  "data/wav/lazer00.wav",  "data/wav/lazer01.wav",  "data/wav/enep01.wav",
     "data/wav/nep00.wav",  "data/wav/damage00.wav", "data/wav/item00.wav",   "data/wav/kira00.wav",
     "data/wav/kira01.wav", "data/wav/kira02.wav",   "data/wav/extend.wav",   "data/wav/timeout.wav",
-    "data/wav/graze.wav",  "data/wav/powerup.wav", "data/wav/post00.wav",
-    "data/wav/poyo_batattack.wav", "data/wav/poyo_bathit.wav"
+    "data/wav/graze.wav",  "data/wav/powerup.wav",
+
+    // poyo
+    "data/wav/post00.wav", "data/wav/poyo_batattack.wav", "data/wav/poyo_bathit.wav",
+    "data/wav/poyo_shotgun.wav"
 };
 SoundPlayer g_SoundPlayer;
 
