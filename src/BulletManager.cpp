@@ -379,6 +379,21 @@ u32 BulletManager::SpawnSingleBullet(const EnemyBulletShooter *bulletProps, i32 
 // Damage each bullet sent back by poyo's bat deals when it runs into an enemy.
 #define POYO_REFLECTED_BULLET_DAMAGE 70
 
+// How many bullets poyo's bat reflected on the same frame as this one (including itself).
+i32 BulletManager::CountReflectedBatch(const Bullet *bullet) const
+{
+    i32 batchSize = 0;
+    for (i32 j = 0; j < ARRAY_SIZE_SIGNED(this->bullets); j++)
+    {
+        if (this->bullets[j].state != 0 && this->bullets[j].isReflected == 1 &&
+            this->bullets[j].reflectTime == bullet->reflectTime)
+        {
+            batchSize++;
+        }
+    }
+    return batchSize < 1 ? 1 : batchSize;
+}
+
 i32 BulletManager::CalcReflectedBulletDamage(const ZunVec3 *enemyPos, const ZunVec3 *enemyHitboxSize)
 {
     ZunVec3 enemyTopLeft, enemyBottomRight;
@@ -403,7 +418,10 @@ i32 BulletManager::CalcReflectedBulletDamage(const ZunVec3 *enemyPos, const ZunV
             continue;
         }
 
-        damage += POYO_REFLECTED_BULLET_DAMAGE;
+        // bullets reflected on the same frame split one bullet's damage between them, so the whole batch
+        // adds up to what a single reflected bullet would deal
+        i32 batchSize = this->CountReflectedBatch(bullet);
+        damage += POYO_REFLECTED_BULLET_DAMAGE * Player::PoyoSpecialScalePercent() / 100 / batchSize;
         // play the bullet's fade-out so it can't hit again
         bullet->state = 5;
         g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_5, &bullet->pos, 1, COLOR_WHITE);
@@ -947,6 +965,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 if (curBullet->isReflected != 1)
                 {
 					curBullet->isReflected = 1;
+					curBullet->reflectTime = mgr->time.AsFrames();
 	
 					f32 speed;
 					speed = ZUN_SQRTF((curBullet->velocity.x * curBullet->velocity.x)
@@ -961,6 +980,12 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
 					curBullet->angle = angle;
 					curBullet->velocity.x = (speed * ZUN_COSF(angle)) * 1.25f;
 					curBullet->velocity.y = (speed * ZUN_SINF(angle)) * 1.25f;
+					// the bullet is poyo's now: drop whatever motion scripts the enemy gave it so they can't
+					// steer it away from its target again
+					curBullet->speed = speed * 1.25f;
+					curBullet->exFlags = 0;
+					curBullet->dirChangeNumTimes = 0;
+					curBullet->dirChangeMaxTimes = 0;
                     // curBullet->velocity.x *= -1;
                     // curBullet->velocity.y *= -1;
                     // curBullet->angle += RADIANS(180);
@@ -996,7 +1021,11 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                     }
                 }
             }
-            g_AnmManager->ExecuteScript(&curBullet->sprites.spriteBullet);
+            // reflected bullets no longer run their anm script (it could reset their color or alpha)
+            if (curBullet->isReflected != 1)
+            {
+                g_AnmManager->ExecuteScript(&curBullet->sprites.spriteBullet);
+            }
             break;
         case 5:
             curBullet->pos += curBullet->velocity / 2.0f * g_Supervisor.effectiveFramerateMultiplier;
@@ -1351,6 +1380,12 @@ void BulletManager::DrawBullet(Bullet *bullet)
     anmVm->pos.z = 0.0;
     anmVm->color = COLOR_COMBINE_ALPHA(COLOR_WHITE, anmVm->color);
 
+    if (bullet->isReflected == 1)
+    {
+        // every reflected bullet is drawn half transparent
+        anmVm->color = COLOR_SET_ALPHA2(anmVm->color, 0x80);
+    }
+
     if (anmVm->autoRotate != 0)
     {
         anmVm->rotation.z = (ZUN_PI / 2.0f) - bullet->angle;
@@ -1386,6 +1421,12 @@ void BulletManager::DrawBulletNoHwVertex(Bullet *bullet)
     anmVm->pos.y = g_GameManager.arcadeRegionTopLeftPos.y + bullet->pos.y;
     anmVm->pos.z = 0.0;
     anmVm->color = COLOR_COMBINE_ALPHA(COLOR_WHITE, anmVm->color);
+
+    if (bullet->isReflected == 1)
+    {
+        // every reflected bullet is drawn half transparent
+        anmVm->color = COLOR_SET_ALPHA2(anmVm->color, 0x80);
+    }
 
     if (anmVm->autoRotate != 0)
     {

@@ -186,6 +186,8 @@ struct Player
     static FireBulletResult FireBulletMarisaB(Player *, PlayerBullet *, u32, u32);
     static FireBulletResult FireBulletPoyo(Player *, PlayerBullet *, u32, u32);
     static FireBulletResult FirePoyoBomb(Player *);
+    // percent multiplier for poyo's special abilities: 100 at no power, 175 at max power
+    static i32 PoyoSpecialScalePercent();
 
     static void StartFireBulletTimer(Player *);
     ZunResult HandlePlayerInputs();

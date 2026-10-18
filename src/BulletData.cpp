@@ -1666,53 +1666,52 @@ extern const CharacterPowerData g_CharacterPowerDataMarisaB[9] = {
 };
 
 /* ----------Poyo---------- */
-// One shot every 5 frames, damage chosen so each power level deals about what ReimuA lands on an enemy
-// straight ahead of her over the same time (her own 70 damage per frame cap included). Per 30 frames:
-// 288, 316, 388, 448, 468, 480, 480, 516, 560.
+// One shot every 10 frames. Damage is ~15% below the old ReimuA-matched values (48..93) so the bat and
+// shotgun are the better damage dealers; both of those scale with power (see Player::PoyoSpecialScalePercent).
 
 /* Poyo Rank 1 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank1[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 48, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 41, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 2 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank2[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 53, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 45, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 3 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank3[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 65, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 55, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 4 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank4[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 75, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 64, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 5 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank5[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 78, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 66, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 6 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank6[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 80, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 68, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 7 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank7[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 80, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 68, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 8 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank8[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 86, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 73, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT},
 };
 /* Poyo Rank 9 */
 static const CharacterPowerBulletData g_CharacterPowerBulletDataPoyoRank9[1] = {
-    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 93, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
+    {10, 0, {0.0, 0.0}, {12.0, 12.0}, RADIANS(-90.0), 12.0, 79, 0, BULLET_TYPE_0, ANM_SCRIPT_PLAYER_BULLET,
      SOUND_POYO_SHOOT},
 };
 extern const CharacterPowerData g_CharacterPowerDataPoyo[9] = {

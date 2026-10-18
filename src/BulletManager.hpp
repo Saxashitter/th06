@@ -51,6 +51,7 @@ struct Bullet
     i32 dirChangeNumTimes;
     i32 dirChangeMaxTimes;
     i32 isReflected;
+    i32 reflectTime; // bulletManager time (frames) at which poyo's bat reflected this bullet
     u16 exFlags;
     i16 spriteOffset;
     u16 unk_5bc;
@@ -100,6 +101,7 @@ struct BulletManager
     static void DrawBullet(Bullet *bullet);
 
     void RemoveAllBullets(bool turnIntoItem);
+    i32 CountReflectedBatch(const Bullet *bullet) const;
     i32 CalcReflectedBulletDamage(const ZunVec3 *enemyPos, const ZunVec3 *enemyHitboxSize);
     void InitializeToZero();
 

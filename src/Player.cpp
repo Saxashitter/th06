@@ -544,7 +544,7 @@ i32 Player::CalcDamageToEnemy(const ZunVec3 *enemyPos, const ZunVec3 *enemyHitbo
         // count melee damage too
         if (this->CalcReflectionCollision(enemyPos, enemyHitboxSize) == 1)
         {
-            damage += 240;
+            damage += 240 * PoyoSpecialScalePercent() / 100;
         }
 
     }
@@ -938,8 +938,16 @@ ZunResult Player::HandlePlayerInputs()
 
     this->grabItemBottomRight = this->positionCenter + this->grabItemSize;
 
-    this->reflectionTopLeft = this->positionCenter + this->reflectionOffset - this->reflectionSize;
-    this->reflectionBottomRight = this->positionCenter + this->reflectionOffset + this->reflectionSize;
+    // the bat reaches further as poyo powers up (up to +40% at max power)
+    ZunVec3 scaledReflectionSize = this->reflectionSize;
+    if (g_GameManager.character == CHARA_POYO)
+    {
+        i32 reachPercent = 100 + (PoyoSpecialScalePercent() - 100) * 40 / 75;
+        scaledReflectionSize.x = scaledReflectionSize.x * reachPercent / 100.0f;
+        scaledReflectionSize.y = scaledReflectionSize.y * reachPercent / 100.0f;
+    }
+    this->reflectionTopLeft = this->positionCenter + this->reflectionOffset - scaledReflectionSize;
+    this->reflectionBottomRight = this->positionCenter + this->reflectionOffset + scaledReflectionSize;
 
     this->orbsPosition[0] = this->positionCenter;
     this->orbsPosition[1] = this->positionCenter;
@@ -1327,6 +1335,15 @@ FireBulletResult Player::FireBulletPoyo(Player *player, PlayerBullet *bullet, u3
     return player->FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataPoyo);
 }
 
+i32 Player::PoyoSpecialScalePercent()
+{
+    // power runs 0..128; 100% at none, 175% at full
+    i32 power = g_GameManager.currentPower;
+    if (power > 128)
+        power = 128;
+    return 100 + power * 75 / 128;
+}
+
 // Poyo's bomb/secondary shot: fires the five-bullet spread table directly, bypassing the
 // main-shot fireBulletTimer so it doesn't interfere with the pistol cadence.
 FireBulletResult Player::FirePoyoBomb(Player *player)
@@ -1362,6 +1379,7 @@ FireBulletResult Player::FirePoyoBomb(Player *player)
         FireBulletResult result = player->FireSingleBullet(player, curBullet, bulletDataIdx, 0, &powerData);
         if (result >= 0)
         {
+            curBullet->damage = curBullet->damage * PoyoSpecialScalePercent() / 100;
             curBullet->sprite.pos.x = curBullet->position.x;
             curBullet->sprite.pos.y = curBullet->position.y;
             curBullet->sprite.pos.z = 0.495;

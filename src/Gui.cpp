@@ -1368,11 +1368,11 @@ void Gui::DrawGameScene()
             }
         }
         else {
-            float scale = (1.0f * g_Player.poyoSideCooldown) / g_Player.poyoSideInitialCooldown;
+            float scale = 1.0f - ((1.0f * g_Player.poyoSideCooldown) / g_Player.poyoSideInitialCooldown);
             utils::DebugPrint2("%f, %d, %d", scale, g_Player.poyoSideCooldown, g_Player.poyoSideInitialCooldown);
     
             // Draw the damn thingamajig
-            DrawSolidRect(496.0f, 146.0f, 32.0f * scale, 8.0f, 0x80e0e0ff, 0x40e0e0ff);
+            DrawSolidRect(496.0f, 146.0f, 128.0f * scale, 8.0f, 0x80e0e0ff, 0x40e0e0ff);
         }
     }
     if (this->flags.flag2 || ((g_Supervisor.cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1) != 0))
