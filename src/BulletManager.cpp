@@ -965,7 +965,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 if (curBullet->isReflected != 1)
                 {
 					curBullet->isReflected = 1;
-					curBullet->reflectTime = mgr->time.AsFrames();
+					curBullet->reflectTime = g_Player.reflectionTime;
 	
 					f32 speed;
 					speed = ZUN_SQRTF((curBullet->velocity.x * curBullet->velocity.x)
@@ -1391,7 +1391,31 @@ void BulletManager::DrawBullet(Bullet *bullet)
         anmVm->rotation.z = (ZUN_PI / 2.0f) - bullet->angle;
     }
 
+    // for the zoom
+    f32 savedX = anmVm->pos.x;
+    f32 savedY = anmVm->pos.y;
+    f32 savedScaleX = anmVm->scaleX;
+    f32 savedScaleY = anmVm->scaleY;
+
+    if (g_GameManager.deathZoomAmount > 0.0f)
+    {
+        f32 zoomX = bullet->pos.x;
+        f32 zoomY = bullet->pos.y;
+
+        g_GameManager.ApplyDeathZoomToPoint(&zoomX, &zoomY);
+
+        anmVm->pos.x = g_GameManager.arcadeRegionTopLeftPos.x + zoomX;
+        anmVm->pos.y = g_GameManager.arcadeRegionTopLeftPos.y + zoomY;
+        anmVm->scaleX *= g_GameManager.GetDeathZoomScale();
+        anmVm->scaleY *= g_GameManager.GetDeathZoomScale();
+    }
+
     g_AnmManager->Draw2(anmVm);
+
+    anmVm->pos.x = savedX;
+    anmVm->pos.y = savedY;
+    anmVm->scaleX = savedScaleX;
+    anmVm->scaleY = savedScaleY;
 }
 
 void BulletManager::DrawBulletNoHwVertex(Bullet *bullet)
@@ -1433,6 +1457,7 @@ void BulletManager::DrawBulletNoHwVertex(Bullet *bullet)
         anmVm->rotation.z = (ZUN_PI / 2.0f) - bullet->angle;
     }
 
+    DeathZoomedVm zoomed(anmVm);
     g_AnmManager->Draw(anmVm);
 }
 

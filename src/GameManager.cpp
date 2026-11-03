@@ -16,6 +16,8 @@
 #include "Supervisor.hpp"
 #include "utils.hpp"
 
+#include <random>
+
 // #include <d3d8types.h>
 // #include <d3dx8math.h>
 
@@ -110,10 +112,113 @@ i32 GameManager::IsInBounds(f32 x, f32 y, f32 width, f32 height) const
     return true;
 }
 
+void GameManager::StartDeathFreeze(f32 focusX, f32 focusY)
+{
+    this->deathFreezeFrames = DEATH_FREEZE_FRAMES;
+    this->deathZoomX = focusX;
+    this->deathZoomY = focusY;
+    this->deathZoomAmount = 0.0f;
+}
+
+void GameManager::UpdateDeathFreeze()
+{
+    if (this->deathFreezeFrames <= 0)
+    {
+        this->deathFreezeFrames = 0;
+        this->deathZoomAmount = 0.0f;
+        return;
+    }
+    this->deathFreezeFrames--;
+
+    f32 zoomIn = (f32)(DEATH_FREEZE_FRAMES - this->deathFreezeFrames) / DEATH_ZOOM_IN_FRAMES;
+    f32 zoomOut = (f32)this->deathFreezeFrames / DEATH_ZOOM_OUT_FRAMES;
+	
+	if (zoomOut <= 1.0f)
+	{
+		f32 progress = (f32)1.0f - (zoomOut * zoomOut);
+		zoomOut = (f32)1.0f - progress;
+	}
+	f32 t = zoomIn < zoomOut ? zoomIn : zoomOut;
+
+    if (t > 1.0f)
+        t = 1.0f;
+    if (t < 0.0f)
+        t = 0.0f;
+
+    this->deathZoomAmount = t; // t * t * (3.0f - 2.0f * t);
+}
+
+f32 GameManager::GetDeathZoomScale() const
+{
+    return 1.0f + (DEATH_ZOOM_FACTOR - 1.0f) * this->deathZoomAmount;
+}
+
+void GameManager::ApplyDeathZoomToPoint(f32 *x, f32 *y) const
+{
+    f32 t = this->deathZoomAmount;
+    if (t <= 0.0f)
+        return;
+
+    f32 middleX = this->arcadeRegionSize.x / 2.0f;
+    f32 middleY = this->arcadeRegionSize.y / 2.0f;
+    // same shift the camera eye gets in ApplyDeathZoom, then scaled around the middle of the view
+    f32 eyeX = middleX + (this->deathZoomX - middleX) * t;
+    f32 eyeY = middleY + (this->deathZoomY - middleY) * t;
+    f32 scale = this->GetDeathZoomScale();
+    *x = middleX + (*x - eyeX) * scale;
+    *y = middleY + (*y - eyeY) * scale;
+}
+
+DeathZoomedVm::DeathZoomedVm(AnmVm *vm)
+{
+    this->vm = vm;
+    this->savedX = vm->pos.x;
+    this->savedY = vm->pos.y;
+    this->savedScaleX = vm->scaleX;
+    this->savedScaleY = vm->scaleY;
+    if (g_GameManager.deathZoomAmount <= 0.0f)
+        return;
+
+    f32 x = vm->pos.x - g_GameManager.arcadeRegionTopLeftPos.x;
+    f32 y = vm->pos.y - g_GameManager.arcadeRegionTopLeftPos.y;
+    g_GameManager.ApplyDeathZoomToPoint(&x, &y);
+    vm->pos.x = g_GameManager.arcadeRegionTopLeftPos.x + x;
+    vm->pos.y = g_GameManager.arcadeRegionTopLeftPos.y + y;
+    vm->scaleX *= g_GameManager.GetDeathZoomScale();
+    vm->scaleY *= g_GameManager.GetDeathZoomScale();
+}
+
+DeathZoomedVm::~DeathZoomedVm()
+{
+    this->vm->pos.x = this->savedX;
+    this->vm->pos.y = this->savedY;
+    this->vm->scaleX = this->savedScaleX;
+    this->vm->scaleY = this->savedScaleY;
+}
+
+// Shifts the eye and look-at point to the zoom focus and pulls the eye in. The offsets are the same for
+// both so the camera keeps its orientation.
+static void ApplyDeathZoom(ZunVec3 *eye, ZunVec3 *at, f32 middleWidth, f32 middleHeight)
+{
+    f32 t = g_GameManager.deathZoomAmount;
+    if (t <= 0.0f)
+        return;
+
+    f32 shiftX = (g_GameManager.deathZoomX - middleWidth) * t;
+    f32 shiftY = -(g_GameManager.deathZoomY - middleHeight) * t;
+    eye->x += shiftX;
+    eye->y += shiftY;
+    at->x += shiftX;
+    at->y += shiftY;
+    eye->z /= g_GameManager.GetDeathZoomScale();
+}
+
 ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
 {
     u32 isInMenu;
     u32 scoreIncrement;
+
+    gameManager->UpdateDeathFreeze();
 
     if (gameManager->demoMode)
     {
@@ -457,6 +562,8 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         g_Supervisor.unk1b8 = 0.0;
     }
     mgr->isTimeStopped = false;
+    mgr->deathFreezeFrames = 0;
+    mgr->deathZoomAmount = 0.0f;
     mgr->score = 0;
     mgr->isGameCompleted = 0;
     g_AsciiManager.InitializeVms();
@@ -523,6 +630,7 @@ void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
     eyeVec.x = viewportMiddleWidth;
     eyeVec.y = -viewportMiddleHeight;
     eyeVec.z = -cameraDistance;
+    ApplyDeathZoom(&eyeVec, &atVec, viewportMiddleWidth, viewportMiddleHeight);
     ZunMatrix viewMatrix = createViewMatrix(eyeVec, atVec, upVec);
     g_AnmManager->SetTransformMatrix(MATRIX_VIEW, viewMatrix);
     g_Supervisor.viewMatrix = viewMatrix;
@@ -569,6 +677,7 @@ void GameManager::SetupCamera(f32 extraRenderDistance)
     eyeVec.x = viewportMiddleWidth;
     eyeVec.y = -viewportMiddleHeight;
     eyeVec.z = eyeVecZ;
+    ApplyDeathZoom(&eyeVec, &atVec, viewportMiddleWidth, viewportMiddleHeight);
 
     ZunMatrix viewMatrix = createViewMatrix(eyeVec, atVec, upVec);
     g_AnmManager->SetTransformMatrix(MATRIX_VIEW, viewMatrix);

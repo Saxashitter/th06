@@ -11,6 +11,10 @@
 
 struct Player;
 
+// for the goat
+#define POYO_BAT_COOLDOWN_FRAMES 15 // 2 seconds
+#define POYO_SHOTGUN_COOLDOWN_FRAMES 120 // 2 seconds
+
 enum PlayerDirection
 {
     MOVEMENT_NONE,
@@ -208,7 +212,7 @@ struct Player
     i32 CalcDamageToEnemy(const ZunVec3 *enemyPos, const ZunVec3 *enemySize, bool *unk);
     i32 CalcItemBoxCollision(const ZunVec3 *center, const ZunVec3 *size) const;
     void ScoreGraze(const ZunVec3 *center) const;
-    void Die();
+    void Die(float offset);
 
     AnmVm playerSprite;
     AnmVm orbsSprite[3];
@@ -220,15 +224,6 @@ struct Player
     ZunVec3 grabItemBottomRight;
     ZunVec3 hitboxSize;
     ZunVec3 grabItemSize;
-    ZunVec3 reflectionSize;
-    ZunVec3 reflectionOffset;
-    ZunVec3 reflectionTopLeft;
-    ZunVec3 reflectionBottomRight;
-    ZunTimer reflectionActiveTimer;
-    i32 poyoSideCooldown;
-    i32 poyoSideInitialCooldown; // for poyos shotgun and baseball bat
-    // shoot was pressed this frame while single shots were off cooldown
-    bool singleShotQueued;
     ZunVec3 orbsPosition[2];
     ZunVec3 bombRegionPositions[32];
     ZunVec3 bombRegionSizes[32];
@@ -261,6 +256,25 @@ struct Player
     ChainElem *chainCalc;
     ChainElem *chainDraw1;
     ChainElem *chainDraw2;
+
+    // for poyo
+	i32 reflectionTime;
+    ZunVec3 reflectionSize;
+    ZunVec3 reflectionOffset;
+    ZunVec3 reflectionTopLeft;
+    ZunVec3 reflectionBottomRight;
+    ZunTimer reflectionActiveTimer;
+
+    f32 poyoSuperCooldown; // 0-1, with anything above 0 being cooldown
+	i32 poyoSuperFrames; // for supers with special frames
+    // shoot was pressed this frame while single shots were off cooldown
+
+    ZunVec3 corpsePos;
+    ZunVec3 corpseVelocity;
+    i8 corpseVisible;
+    AnmVm corpseSprite;
+
+    bool singleShotQueued;
 
     inline void SetToTopLeftPos(AnmVm *sprite) const
     {

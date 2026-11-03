@@ -46,7 +46,14 @@ enum StageNumber
 #define GAME_REGION_RIGHT (GAME_REGION_LEFT + GAME_REGION_WIDTH)
 #define GAME_REGION_BOTTOM (GAME_REGION_TOP + GAME_REGION_HEIGHT)
 
+#define DEATH_ZOOM_IN_FRAMES 10
+#define DEATH_ZOOM_OUT_FRAMES 40
+#define DEATH_FREEZE_FRAMES (35 + DEATH_ZOOM_OUT_FRAMES)
+// how much closer the camera gets at full zoom (2.2 = 220% scale)
+#define DEATH_ZOOM_FACTOR 2.2f
+
 struct GameManager;
+struct AnmVm;
 
 extern GameManager g_GameManager;
 struct GameManager
@@ -60,6 +67,17 @@ struct GameManager
     static ZunResult DeletedCallback(GameManager *gameManager);
     static void SetupCamera(f32);
     static void SetupCameraStageBackground(f32);
+    // poyo's death hit-stop: freezes the game and zooms the camera in on the given point
+    void StartDeathFreeze(f32 focusX, f32 focusY);
+    void UpdateDeathFreeze();
+    // For sprites drawn in screen space (which ignore the camera): scale and position that match what the
+    // zoomed camera does to something drawn at game-region coords (x, y).
+    f32 GetDeathZoomScale() const;
+    void ApplyDeathZoomToPoint(f32 *x, f32 *y) const;
+    bool IsDeathFrozen() const
+    {
+        return this->deathFreezeFrames >= (DEATH_FREEZE_FRAMES - DEATH_ZOOM_OUT_FRAMES);
+    }
 
     i32 HasReachedMaxClears(i32 character, i32 shottype) const;
     void IncreaseSubrank(i32 amount);
@@ -88,6 +106,12 @@ struct GameManager
     i32 bombsUsed;
     i32 spellcardsCaptured;
     i8 isTimeStopped;
+    // poyo's death hit-stop: while deathFreezeFrames > 0 the game logic is paused and the camera zooms in on
+    // (deathZoomX, deathZoomY). deathZoomAmount is the eased 0..1 zoom strength.
+    i32 deathFreezeFrames;
+    f32 deathZoomAmount;
+    f32 deathZoomX;
+    f32 deathZoomY;
     Catk catk[CATK_NUM_CAPTURES];
     Clrd clrd[CLRD_NUM_CHARACTERS];
     Pscr pscr[PSCR_NUM_CHARS_SHOTTYPES][PSCR_NUM_STAGES][PSCR_NUM_DIFFICULTIES];
@@ -130,4 +154,15 @@ struct GameManager
     i32 maxRank;
     i32 minRank;
     i32 subRank;
+};
+
+// For game-world sprites drawn in screen space (they ignore the camera): while this is alive the vm sits where
+// the zoomed camera would put it, and is scaled to match. vm->pos must already include arcadeRegionTopLeftPos.
+struct DeathZoomedVm
+{
+    explicit DeathZoomedVm(AnmVm *vm);
+    ~DeathZoomedVm();
+
+    AnmVm *vm;
+    f32 savedX, savedY, savedScaleX, savedScaleY;
 };

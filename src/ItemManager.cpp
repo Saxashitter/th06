@@ -391,6 +391,7 @@ void ItemManager::OnDraw()
                 curItem->sprite.color = COLOR_WHITE;
             }
         }
+        DeathZoomedVm zoomed(&curItem->sprite);
         g_AnmManager->DrawNoRotation(&curItem->sprite);
     }
     return;

@@ -1298,8 +1298,9 @@ void Gui::DrawGameScene()
         g_AnmManager->DrawNoRotation(&this->impl->vms[9]);
         g_AnmManager->DrawNoRotation(&this->impl->vms[10]);
         g_AnmManager->DrawNoRotation(&this->impl->vms[11]);
-        if (g_GameManager.character != CHARA_POYO)
-            g_AnmManager->DrawNoRotation(&this->impl->vms[12]);
+        // if (g_GameManager.character != CHARA_POYO)
+		// bombs counter
+		g_AnmManager->DrawNoRotation(&this->impl->vms[12]);
         g_AnmManager->DrawNoRotation(&this->impl->vms[13]);
         g_AnmManager->DrawNoRotation(&this->impl->vms[14]);
         g_AnmManager->DrawNoRotation(&this->impl->vms[15]);
@@ -1359,20 +1360,21 @@ void Gui::DrawGameScene()
     if (this->flags.flag1 || ((g_Supervisor.cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1) != 0))
     {
         vm = &this->impl->vms[17];
-        if (g_GameManager.character != CHARA_POYO)
-        {
+        // if (g_GameManager.character != CHARA_POYO)
+        // {
             for (idx = 0, xPos = 496.0f; idx < g_GameManager.bombsRemaining; idx++, xPos += 16.0f)
             {
                 vm->pos = ZunVec3(xPos, 146.0f, 0.49f);
                 g_AnmManager->DrawNoRotation(vm);
             }
-        }
-        else {
-            float scale = 1.0f - ((1.0f * g_Player.poyoSideCooldown) / g_Player.poyoSideInitialCooldown);
-            utils::DebugPrint2("%f, %d, %d", scale, g_Player.poyoSideCooldown, g_Player.poyoSideInitialCooldown);
+        // }
+        // else {
+		if (g_GameManager.character == CHARA_POYO)
+		{
+            float scale = 1.0f - g_Player.poyoSuperCooldown;
     
             // Draw the damn thingamajig
-            DrawSolidRect(496.0f, 146.0f, 128.0f * scale, 8.0f, 0x80e0e0ff, 0x40e0e0ff);
+            DrawSolidRect(496.0f, 166.0f, 128.0f * scale, 4.0f, 0x80e0e0ff, 0x40e0e0ff);
         }
     }
     if (this->flags.flag2 || ((g_Supervisor.cfg.opts >> GCOS_DISPLAY_MINIMUM_GRAPHICS & 1) != 0))

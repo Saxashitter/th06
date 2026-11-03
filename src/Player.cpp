@@ -23,11 +23,10 @@
 #include "i18n.hpp"
 #include "utils.hpp"
 
-Player g_Player;
+// for poyo
+#include <random>
 
-// for the goat
-#define POYO_BAT_COOLDOWN_FRAMES 23
-#define POYO_SHOTGUN_COOLDOWN_FRAMES 60
+Player g_Player;
 
 static const CharacterData g_CharData[6] = {
     /* ReimuA  */ {4.0, 2.0, 4.0, 2.0, Player::FireBulletReimuA, Player::FireBulletReimuA},
@@ -108,6 +107,7 @@ ZunResult Player::AddedCallback(Player *p)
             return ZUN_ERROR;
         }
         g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_POYO_IDLE);
+        g_AnmManager->SetAndExecuteScriptIdx(&p->corpseSprite, ANM_SCRIPT_POYO_IDLE); // TODO: corpse sprite lol
         break;
     }
     p->positionCenter.x = g_GameManager.arcadeRegionSize.x / 2.0f;
@@ -157,7 +157,8 @@ ZunResult Player::AddedCallback(Player *p)
     p->respawnTimer = 8;
 
     // poyo related
-    p->poyoSideCooldown = 0;
+    p->poyoSuperCooldown = 0;
+	p->poyoSuperFrames = 0;
 
     p->reflectionOffset.x = 0;
     p->reflectionOffset.y = -30;
@@ -166,18 +167,6 @@ ZunResult Player::AddedCallback(Player *p)
     p->reflectionSize.x = 25;
     p->reflectionSize.y = 20;
     p->reflectionSize.z = 5.0;
-
-    switch (g_GameManager.shotType)
-    {
-    case SHOT_TYPE_A:
-        p->poyoSideInitialCooldown = POYO_BAT_COOLDOWN_FRAMES;
-        utils::DebugPrint2("poyo cooldown is bat");
-        break;
-    case SHOT_TYPE_B:
-        p->poyoSideInitialCooldown = POYO_SHOTGUN_COOLDOWN_FRAMES;
-        utils::DebugPrint2("poyo cooldown is shotgun");
-        break;
-    }
 
     return ZUN_SUCCESS;
 }
@@ -216,20 +205,25 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     else if (!g_Gui.HasCurrentMsgIdx() && p->respawnTimer != 0 && 0 < g_GameManager.bombsRemaining &&
              WAS_PRESSED(TH_BUTTON_BOMB) && p->bombInfo.calc != NULL)
     {
+		g_GameManager.bombsUsed++;
+    	g_GameManager.bombsRemaining--;
+        g_Gui.flags.flag1 = 2;
+
         if (g_GameManager.character == CHARA_POYO)
         {
             // shot type a: baseball bat and ak47
 			if (g_GameManager.shotType == SHOT_TYPE_A)
 			{
-				if (p->poyoSideCooldown == 0)
-				{
-					g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_POYO_SWING);
-					g_SoundPlayer.PlaySoundByIdx(SOUND_POYO_BAT_ATTACK);
+				BulletManager *mgr = &g_BulletManager;
 
-					p->poyoSideCooldown = POYO_BAT_COOLDOWN_FRAMES;
-					p->reflectionActiveTimer.SetCurrent(6);
-					p->fireBulletTimer.SetCurrent(-1);
-				}
+				g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_POYO_SWING);
+				g_SoundPlayer.PlaySoundByIdx(SOUND_POYO_BAT_ATTACK);
+
+				p->poyoSuperCooldown = 1.0f; // POYO_BAT_COOLDOWN_FRAMES;
+				p->poyoSuperFrames = POYO_BAT_COOLDOWN_FRAMES;
+				p->reflectionActiveTimer.SetCurrent(6);
+				p->fireBulletTimer.SetCurrent(-1);
+				p->reflectionTime = mgr->time.AsFrames();
 			}
 			else
             // shot  type b: main shot as pistol and secondary shot as shotgun
@@ -237,9 +231,6 @@ ChainCallbackResult Player::OnUpdate(Player *p)
         }
         else
         {
-            g_GameManager.bombsUsed++;
-            g_GameManager.bombsRemaining--;
-            g_Gui.flags.flag1 = 2;
             p->bombInfo.isInUse = 1;
             p->bombInfo.timer.SetCurrent(0);
             p->bombInfo.duration = 999;
@@ -292,11 +283,13 @@ ChainCallbackResult Player::OnUpdate(Player *p)
         else
         {
             scaleFactor1 = p->invulnerabilityTimer.AsFramesFloat() / 30.0f;
+
             p->playerSprite.scaleY = 3.0f * scaleFactor1 + 1.0f;
             p->playerSprite.scaleX = 1.0f - 1.0f * scaleFactor1;
             p->playerSprite.color =
                 COLOR_SET_ALPHA(COLOR_WHITE, (u32)(255.0f - p->invulnerabilityTimer.AsFramesFloat() * 255.0f / 30.0f));
             p->playerSprite.flags.blendMode = AnmVmBlendMode_One;
+
             p->previousHorizontalSpeed = 0.0f;
             p->previousVerticalSpeed = 0.0f;
             if (p->invulnerabilityTimer.AsFrames() >= 30)
@@ -354,6 +347,15 @@ ChainCallbackResult Player::OnUpdate(Player *p)
             p->respawnTimer = 6;
         }
     }
+
+    // poyo
+    if (p->corpseVisible && !g_GameManager.IsDeathFrozen())
+    {
+        p->corpseVelocity.y += 0.2;
+
+        p->corpsePos.x += p->corpseVelocity.x;
+        p->corpsePos.y += p->corpseVelocity.y;
+    }
     if (p->bulletGracePeriod != 0)
     {
         p->bulletGracePeriod--;
@@ -388,9 +390,28 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     {
         p->HandlePlayerInputs();
     }
-    if (p->poyoSideCooldown > 0)
+    if (p->poyoSuperCooldown > 0.0f)
     {
-        p->poyoSideCooldown--;
+        p->poyoSuperCooldown -= 1.0f / POYO_SHOTGUN_COOLDOWN_FRAMES; // 1 second cooldown... for now
+
+
+		if (p->poyoSuperCooldown <= 0)
+		{
+			if (g_GameManager.bombsRemaining < 3)
+			{
+				g_GameManager.bombsRemaining++;
+				g_Gui.flags.flag1 = 2;
+				p->poyoSuperCooldown = 1;
+			}
+			else
+			{
+				p->poyoSuperCooldown = 0;
+			}
+		}
+    }
+	if (p->poyoSuperFrames > 0)
+    {
+        p->poyoSuperFrames--; // 1 second cooldown... for now
     }
     if (p->reflectionActiveTimer.AsFrames() > 0) {
         p->reflectionActiveTimer.Decrement(1);
@@ -399,6 +420,10 @@ ChainCallbackResult Player::OnUpdate(Player *p)
             p->reflectionActiveTimer.SetCurrent(0);
     }
     g_AnmManager->ExecuteScript(&p->playerSprite);
+    if (p->corpseVisible)
+    {
+        g_AnmManager->ExecuteScript(&p->corpseSprite);
+    }
     Player::UpdatePlayerBullets(p);
     if (p->orbState != ORB_HIDDEN && g_GameManager.character != CHARA_POYO)
     {
@@ -682,7 +707,42 @@ ChainCallbackResult Player::OnDrawHighPrio(Player *p)
     p->playerSprite.pos.z = 0.49;
     if (!g_GameManager.isInRetryMenu)
     {
+        // the player is drawn in screen space, so the death zoom has to be applied to it by hand
+        f32 savedX = p->playerSprite.pos.x;
+        f32 savedY = p->playerSprite.pos.y;
+        f32 savedScaleX = p->playerSprite.scaleX;
+        f32 savedScaleY = p->playerSprite.scaleY;
+
+        if (g_GameManager.deathZoomAmount > 0.0f)
+        {
+            f32 zoomX = p->positionCenter.x;
+            f32 zoomY = p->positionCenter.y;
+            g_GameManager.ApplyDeathZoomToPoint(&zoomX, &zoomY);
+            p->playerSprite.pos.x = g_GameManager.arcadeRegionTopLeftPos.x + zoomX;
+            p->playerSprite.pos.y = g_GameManager.arcadeRegionTopLeftPos.y + zoomY;
+            p->playerSprite.scaleX *= g_GameManager.GetDeathZoomScale();
+            p->playerSprite.scaleY *= g_GameManager.GetDeathZoomScale();
+        }
         g_AnmManager->DrawNoRotation(&p->playerSprite);
+        p->playerSprite.pos.x = savedX;
+        p->playerSprite.pos.y = savedY;
+        p->playerSprite.scaleX = savedScaleX;
+        p->playerSprite.scaleY = savedScaleY;
+        if (p->corpseVisible)
+        {
+            f32 corpseX = p->corpsePos.x;
+            f32 corpseY = p->corpsePos.y;
+            g_GameManager.ApplyDeathZoomToPoint(&corpseX, &corpseY);
+
+            p->corpseSprite.pos.x = g_GameManager.arcadeRegionTopLeftPos.x + corpseX;
+            p->corpseSprite.pos.y = g_GameManager.arcadeRegionTopLeftPos.y + corpseY;
+            p->corpseSprite.pos.z = 0.49;
+
+            p->corpseSprite.scaleX = g_GameManager.GetDeathZoomScale();
+            p->corpseSprite.scaleY = g_GameManager.GetDeathZoomScale();
+
+            g_AnmManager->DrawNoRotation(&p->corpseSprite);
+        }
         if (p->orbState != ORB_HIDDEN &&
             (p->playerState == PLAYER_STATE_ALIVE || p->playerState == PLAYER_STATE_INVULNERABLE)
             && g_GameManager.character != CHARA_POYO)
@@ -862,7 +922,7 @@ ZunResult Player::HandlePlayerInputs()
 
     if (g_GameManager.character == CHARA_POYO)
     {
-        if ((this->poyoSideCooldown == 0 && g_GameManager.shotType == SHOT_TYPE_A) || g_GameManager.shotType == SHOT_TYPE_B)
+        if ((this->poyoSuperFrames == 0 && g_GameManager.shotType == SHOT_TYPE_A) || g_GameManager.shotType == SHOT_TYPE_B)
         {
             i32 wantedScript = ANM_SCRIPT_POYO_IDLE;
             if (horizontalSpeed < 0.0f)
@@ -1052,7 +1112,7 @@ ZunResult Player::HandlePlayerInputs()
         // poyo exclusive logic
         (g_GameManager.character == CHARA_POYO) && (
             (
-                (g_GameManager.shotType == SHOT_TYPE_A && this->poyoSideCooldown == 0) ||
+                (g_GameManager.shotType == SHOT_TYPE_A && this->poyoSuperFrames == 0) ||
                 (g_GameManager.shotType == SHOT_TYPE_B)
             )
         ) || (g_GameManager.character != CHARA_POYO)
@@ -1245,15 +1305,6 @@ FireBulletResult Player::FireSingleBullet(Player *player, PlayerBullet *bullet, 
             goto SHOOT_BULLET;
         }
     }
-    else if (bulletData->fireType == BULLET_FIRE_TYPE_SINGLE)
-    {
-        if (player->singleShotQueued)
-        {
-            // every single shot bullet of this power level still fires on this press
-            player->poyoSideCooldown = bulletData->waitBetweenBullets;
-            goto SHOOT_BULLET;
-        }
-    }
     else if (framesSinceLastBullet % bulletData->waitBetweenBullets == bulletData->bulletFrame)
     {
     SHOOT_BULLET:
@@ -1356,7 +1407,7 @@ FireBulletResult Player::FirePoyoBomb(Player *player)
     i32 curBulletIdx;
     u32 bulletDataIdx;
 
-    if (player->poyoSideCooldown > 0)
+    if (player->poyoSuperCooldown > 0)
         return 0; // we need to let this wear off first
 
     bulletDataIdx = 0;
@@ -1382,7 +1433,7 @@ FireBulletResult Player::FirePoyoBomb(Player *player)
             curBullet->damage = curBullet->damage * PoyoSpecialScalePercent() / 100;
             curBullet->sprite.pos.x = curBullet->position.x;
             curBullet->sprite.pos.y = curBullet->position.y;
-            curBullet->sprite.pos.z = 0.495;
+            curBullet->sprite.pos.z = 1;
             curBullet->bulletState = BULLET_STATE_FIRED;
             bulletDataIdx++;
         }
@@ -1392,7 +1443,7 @@ FireBulletResult Player::FirePoyoBomb(Player *player)
         }
     }
     player->singleShotQueued = singleShotWasQueued;
-    player->poyoSideCooldown = POYO_SHOTGUN_COOLDOWN_FRAMES;
+    player->poyoSuperCooldown = 1.0f; // POYO_SHOTGUN_COOLDOWN_FRAMES;
     return 0;
 }
 
@@ -1486,7 +1537,7 @@ i32 Player::CalcKillBoxCollision(const ZunVec3 *bulletCenter, const ZunVec3 *bul
     }
     else
     {
-        this->Die();
+        this->Die(bulletCenter->x - this->positionCenter.x);
         return 1;
     }
 }
@@ -1591,7 +1642,7 @@ LASER_COLLISION:
         return 0;
     }
 
-    this->Die();
+    this->Die(laserCenter->x - this->positionCenter.x);
     return 1;
 }
 
@@ -1641,7 +1692,7 @@ void Player::ScoreGraze(const ZunVec3 *center) const
     g_SoundPlayer.PlaySoundByIdx(SOUND_GRAZE);
 }
 
-void Player::Die()
+void Player::Die(float offset)
 {
     int curLaserTimerIdx;
 
@@ -1658,6 +1709,35 @@ void Player::Die()
     this->playerState = PLAYER_STATE_DEAD;
     this->invulnerabilityTimer.InitializeForPopup();
     g_SoundPlayer.PlaySoundByIdx(SOUND_PICHUN);
+
+    if (g_GameManager.character == CHARA_POYO)
+    {
+        // knocked away from whatever hit poyo (offset > 0 means the hit came from the right)
+        float vel = -2.0f;
+        if (offset < 0.0f)
+            vel *= -1.0f;
+        this->corpsePos.x = this->positionCenter.x;
+        this->corpsePos.y = this->positionCenter.y;
+        this->corpsePos.z = this->positionCenter.z;
+
+        this->corpseVelocity.x = vel;
+        // negative is up; gravity in OnUpdate pulls it back down
+        this->corpseVelocity.y = -4.0f;
+    
+        this->corpseVisible = true;
+	
+		if (g_GameManager.character == CHARA_POYO)
+		{
+			// cosmetic only, so this deliberately doesn't use g_Rng: that one is part of the replay state
+			static std::mt19937 screamRng{std::random_device{}()};
+			static const SoundIdx screams[4] = {SOUND_POYO_WILHEIM1, SOUND_POYO_WILHEIM2, SOUND_POYO_WILHEIM3,
+												SOUND_POYO_WILHEIM4};
+			g_SoundPlayer.PlaySoundByIdx(screams[screamRng() % 4]);
+		}
+
+
+        // g_GameManager.StartDeathFreeze(this->positionCenter.x, this->positionCenter.y);
+    }
     g_GameManager.deaths++;
     for (curLaserTimerIdx = 0; curLaserTimerIdx < ARRAY_SIZE_SIGNED(this->laserTimer); curLaserTimerIdx++)
     {

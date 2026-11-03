@@ -2012,12 +2012,21 @@ ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
     {
         const ZunColor previousColor = g_AsciiManager.color;
         const bool previousIsSelected = g_AsciiManager.isSelected;
-        ZunVec3 textPos(419.0f, 224.0f, 0.0f);
-
+		
+        ZunVec3 textPos(600.0f, 224.0f, 0.0f);
+		
         for (i32 shotType = 0; shotType < 2; shotType++)
         {
+			const char *typeName = shotType == 0 ? "Baseball Bat" : "Bullet-Disappearin' Shotgun";
+
+			// to align the text to the right we gotta do this thingy
+			f32 width = 14.0f * strlen(typeName);
+
+			// aaand draw
+			textPos.x -= width;
             g_AsciiManager.isSelected = menu->cursor == shotType;
-            g_AsciiManager.AddFormatText(&textPos, "Placeholder");
+            g_AsciiManager.AddFormatText(&textPos, typeName);
+			textPos.x += width;
             textPos.y += 48.0f;
         }
 

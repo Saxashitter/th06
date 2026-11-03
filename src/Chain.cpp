@@ -1,4 +1,6 @@
 #include "Chain.hpp"
+#include "ChainPriorities.hpp"
+#include "GameManager.hpp"
 #include "utils.hpp"
 
 #include <new>
@@ -149,6 +151,13 @@ restart_from_first_job:
 
     while (current != NULL)
     {
+        // poyo's death freeze pauses the stage, player, enemies, effects, bullets and gui
+        // if (current->callback != NULL && g_GameManager.IsDeathFrozen() &&
+        //     current->priority >= TH_CHAIN_PRIO_CALC_STAGE && current->priority <= TH_CHAIN_PRIO_CALC_GUI)
+        // {
+        //     current = current->next;
+        //     continue;
+        // }
         if (current->callback != NULL)
         {
         execute_again:
